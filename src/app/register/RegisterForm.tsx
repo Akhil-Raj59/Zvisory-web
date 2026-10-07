@@ -195,11 +195,11 @@ export function RegisterForm() {
             Admin
           </button>
         </div>
-        {role === "ADMIN" && (
-          <p className="text-[11px] text-[#124446] font-semibold text-center mt-1">
-            ℹ️ Admin registration mode (Phone number field omitted as per client specification)
-          </p>
-        )}
+        {/* {role === "ADMIN" && (
+          // <p className="text-[11px] text-[#124446] font-semibold text-center mt-1">
+          //   ℹ️ Admin registration mode (Phone number field omitted as per client specification)
+          // </p>
+        )} */}
       </div>
 
       {error && (
