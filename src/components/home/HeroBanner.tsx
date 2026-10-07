@@ -36,9 +36,9 @@ export function HeroBanner() {
       {/* Content Container */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center text-white space-y-8">
         <div className="space-y-4 max-w-3xl mx-auto">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#D3A479] text-[#124446] tracking-wider uppercase shadow-md">
+          {/* <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#D3A479] text-[#124446] tracking-wider uppercase shadow-md">
             ✨ Premium Real Estate Advisory
-          </span>
+          </span> */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight drop-shadow-md">
             Find Your Dream Luxury Home &amp; Investment
           </h1>

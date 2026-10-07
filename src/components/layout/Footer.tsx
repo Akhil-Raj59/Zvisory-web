@@ -156,9 +156,7 @@ export function Footer() {
           <div>
             &copy; {new Date().getFullYear()} Zvisory Advisory Services Pvt. Ltd. All rights reserved.
           </div>
-          <div className="mt-2 sm:mt-0 text-[11px]">
-            Designed strictly according to client wireframe specifications.
-          </div>
+         
         </div>
       </div>
     </footer>
