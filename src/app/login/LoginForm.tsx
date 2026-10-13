@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const verified = searchParams.get("verified");
+  const fromParam = searchParams.get("from");
+  const { setUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,16 +44,30 @@ export function LoginForm() {
         throw new Error(data.message || "Failed to log in");
       }
 
+      if (data.user) {
+        setUser(data.user);
+      }
+
       // Role-based post-login redirect across 3 roles
       const role = (data.user?.role ?? "CUSTOMER").toUpperCase();
 
-      if (role === "ADMIN") {
-        router.push("/dashboard/admin");
-      } else if (role === "EMPLOYEE") {
-        router.push("/dashboard/employee");
+      if (fromParam && !fromParam.includes("login") && !fromParam.includes("register")) {
+        if (fromParam.startsWith("/dashboard/admin") || fromParam.startsWith("/admin")) {
+          router.push(role === "ADMIN" ? fromParam : "/dashboard/customer");
+        } else if (fromParam.startsWith("/dashboard/employee")) {
+          router.push(role === "EMPLOYEE" || role === "ADMIN" ? fromParam : "/dashboard/customer");
+        } else {
+          router.push(fromParam);
+        }
       } else {
-        // Customer / Custumer
-        router.push("/dashboard/customer");
+        if (role === "ADMIN") {
+          router.push("/dashboard/admin");
+        } else if (role === "EMPLOYEE") {
+          router.push("/dashboard/employee");
+        } else {
+          // Customer / Custumer
+          router.push("/dashboard/customer");
+        }
       }
 
       router.refresh();

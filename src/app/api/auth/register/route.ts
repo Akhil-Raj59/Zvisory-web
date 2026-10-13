@@ -34,6 +34,8 @@ export async function POST(request: Request) {
       forwardBody.append("fullName", fullName.trim());
       forwardBody.append("email", email.trim().toLowerCase());
       forwardBody.append("password", password);
+      if (body.phoneNumber) forwardBody.append("phoneNumber", body.phoneNumber.trim());
+      if (body.role) forwardBody.append("role", body.role.trim().toUpperCase());
     }
 
     // Forward to Express backend — let fetch set the Content-Type with the correct boundary

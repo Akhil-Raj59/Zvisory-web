@@ -56,14 +56,18 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const payload = token ? decodeJwtPayload(token) : null;
   const role = payload?.role ? payload.role.toUpperCase() : null;
-  const isAuthenticated = Boolean(role);
+  const isAuthenticated = Boolean(payload?._id || role);
 
   // 1. Unauthenticated users trying to access protected paths
   const isProtectedPath =
     path === "/dashboard" ||
     path.startsWith("/dashboard/") ||
     path === "/admin" ||
-    path.startsWith("/admin/");
+    path.startsWith("/admin/") ||
+    path === "/profile" ||
+    path.startsWith("/profile/") ||
+    path === "/change-password" ||
+    path.startsWith("/change-password/");
 
   if (isProtectedPath && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
@@ -72,8 +76,10 @@ export function middleware(request: NextRequest) {
   }
 
   // 2. Authenticated users opening login or register pages -> redirect to role dashboard
+  // Avoid bouncing back if request has a 'from' parameter (prevents redirect loops on stale/invalid tokens)
   const isAuthPage = path === "/login" || path === "/register";
-  if (isAuthPage && isAuthenticated) {
+  const hasFromParam = request.nextUrl.searchParams.has("from");
+  if (isAuthPage && isAuthenticated && !hasFromParam) {
     const targetDashboard = getRoleDashboard(role || undefined);
     return NextResponse.redirect(new URL(targetDashboard, request.url));
   }
@@ -110,6 +116,10 @@ export const config = {
     "/dashboard/:path*",
     "/admin",
     "/admin/:path*",
+    "/profile",
+    "/profile/:path*",
+    "/change-password",
+    "/change-password/:path*",
     "/login",
     "/register",
   ],

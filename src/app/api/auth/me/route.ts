@@ -26,10 +26,20 @@ export async function GET() {
     );
   } catch (error: unknown) {
     if (error instanceof ApiError) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { success: false, message: error.message },
         { status: error.statusCode }
       );
+      if (error.statusCode === 401 || error.statusCode === 404) {
+        response.cookies.set(env.AUTH_COOKIE_NAME, "", {
+          httpOnly: true,
+          secure: env.IS_PROD,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 0,
+        });
+      }
+      return response;
     }
 
     const message = error instanceof Error ? error.message : "Internal Server Error";

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { backendApi, type User } from "./api";
+import { backendApi, ApiError, type User } from "./api";
 import { env } from "./env";
 
 /**
@@ -44,8 +44,15 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     return null;
-  } catch {
-    // Return null on authentication failure, expired token, or any other error (e.g.,network issues)
+  } catch (err: unknown) {
+    if (err instanceof ApiError && (err.statusCode === 401 || err.statusCode === 404)) {
+      try {
+        const cookieStore = await cookies();
+        cookieStore.delete(env.AUTH_COOKIE_NAME);
+      } catch {
+        // Read-only cookie store in RSC render handled safely
+      }
+    }
     return null;
   }
 }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { MOCK_BLOGS } from "@/mock/blogs";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";

@@ -4,14 +4,16 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { User } from "@/lib/api";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ProfileFormProps {
   initialUser: User;
 }
 
 export function ProfileForm({ initialUser }: ProfileFormProps) {
+  const { setUser: setGlobalUser } = useAuth();
   const [user, setUser] = useState<User>(initialUser);
-  const [fullName, setFullName] = useState(initialUser.fullName);
+  const [fullName, setFullName] = useState(initialUser.fullName || "");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
@@ -87,6 +89,8 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
       if (updatedUser) {
         setUser(updatedUser);
         setFullName(updatedUser.fullName);
+        // Sync with global auth state so Navbar updates instantly
+        setGlobalUser(updatedUser);
       }
 
       setAvatar(null);
@@ -101,68 +105,97 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
   }
 
   const displayAvatarUrl = avatarPreview ?? user.avatar?.secure_url ?? null;
-  const initials = user.fullName.slice(0, 2).toUpperCase();
+  const initials = (user.fullName || "User").slice(0, 2).toUpperCase();
+
+  const formattedDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null;
 
   return (
-    <div className="w-full max-w-lg p-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Update your name and profile photo
+    <div className="w-full max-w-lg p-8 bg-white border border-slate-200 rounded-3xl shadow-xl space-y-6">
+      {/* Brand Header */}
+      <div className="text-center space-y-1">
+        <div className="inline-flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[#D3A479] text-[#124446] font-black text-lg flex items-center justify-center">
+            Z
+          </div>
+          <span className="text-2xl font-black text-[#124446]">Zvisory</span>
+        </div>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900">Your Account Profile</h1>
+        <p className="text-xs text-slate-500">
+          Manage your verified account credentials and personal details
         </p>
       </div>
 
       {success && (
-        <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm">
-          {success}
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+          ✓ {success}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm">
-          {error}
+        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold">
+          ✕ {error}
         </div>
       )}
 
-      {/* Read-only account info */}
-      <div className="mb-6 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800 space-y-2 text-sm">
+      {/* Account Info Card */}
+      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400 text-xs font-medium uppercase tracking-wider">Email</span>
-          <span className="font-mono text-xs text-zinc-700 dark:text-zinc-300">{user.email}</span>
+          <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Email Address</span>
+          <span className="font-mono text-slate-800 font-semibold">{user.email}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400 text-xs font-medium uppercase tracking-wider">Role</span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-            {user.role}
+          <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Assigned Role</span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#124446] text-white">
+            {user.role || "CUSTOMER"}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400 text-xs font-medium uppercase tracking-wider">Email Verified</span>
-          <span className={`text-xs font-medium ${user.isEmailVerified ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
-            {user.isEmailVerified ? "Yes" : "No"}
+          <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Phone Number</span>
+          <span className="text-slate-700 font-medium">
+            {(user as unknown as { phoneNumber?: string }).phoneNumber || "Not provided"}
           </span>
         </div>
+        <div className="flex items-center justify-between">
+          <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Email Verified</span>
+          <span className={`font-bold ${user.isEmailVerified ? "text-emerald-700" : "text-amber-600"}`}>
+            {user.isEmailVerified ? "✓ Verified" : "⚠ Pending Verification"}
+          </span>
+        </div>
+        {formattedDate && (
+          <div className="flex items-center justify-between">
+            <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Member Since</span>
+            <span className="text-slate-600">{formattedDate}</span>
+          </div>
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5 text-xs">
         {/* Avatar */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+          <label className="block font-bold uppercase tracking-wider text-slate-600 mb-2">
             Profile Photo
           </label>
-          <div className="flex items-center gap-5">
-            <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0 flex items-center justify-center">
-              {displayAvatarUrl ? (
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 shrink-0 flex items-center justify-center">
+              {displayAvatarUrl &&
+              displayAvatarUrl !==
+                "https://res.cloudinary.com/du9jzqlpt/image/upload/v1674647316/avatar_drzgxv.jpg" ? (
                 <Image
                   src={displayAvatarUrl}
-                  alt={user.fullName}
-                  width={80}
-                  height={80}
+                  alt={user.fullName || "User Avatar"}
+                  width={64}
+                  height={64}
                   className="object-cover w-full h-full"
                   unoptimized
                 />
               ) : (
-                <span className="text-2xl font-bold text-zinc-400">{initials}</span>
+                <span className="text-xl font-black text-[#124446]">{initials}</span>
               )}
             </div>
             <div>
@@ -178,24 +211,27 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
-                className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 underline disabled:opacity-50"
+                className="text-xs font-bold text-[#124446] hover:underline disabled:opacity-50 cursor-pointer"
               >
-                {avatar ? "Change photo" : (displayAvatarUrl ? "Replace photo" : "Upload photo")}
+                {avatar ? "Change selected photo" : "Upload / Replace photo"}
               </button>
               {avatar && (
                 <>
                   {" · "}
                   <button
                     type="button"
-                    onClick={() => { setAvatar(null); setAvatarPreview(null); }}
+                    onClick={() => {
+                      setAvatar(null);
+                      setAvatarPreview(null);
+                    }}
                     disabled={isLoading}
-                    className="text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-50"
+                    className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                 </>
               )}
-              <p className="text-[11px] text-zinc-400 mt-1">Max 5 MB · JPG, PNG, WebP</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WebP · Max 5 MB</p>
             </div>
           </div>
         </div>
@@ -204,7 +240,7 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
         <div>
           <label
             htmlFor="fullName"
-            className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1.5"
+            className="block font-bold uppercase tracking-wider text-slate-600 mb-1"
           >
             Full Name
           </label>
@@ -217,27 +253,27 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
             autoComplete="name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-zinc-100 text-sm"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446] text-xs"
             disabled={isLoading}
           />
-          <p className="text-[11px] text-zinc-400 mt-1">5–50 characters</p>
+          <p className="text-[10px] text-slate-400 mt-1">5–50 characters</p>
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-2.5 px-4 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+          className="w-full py-3 rounded-xl bg-[#D3A479] hover:bg-[#b88c63] text-[#124446] font-bold text-xs uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          {isLoading ? "Saving…" : "Save Changes"}
+          {isLoading ? "Saving changes..." : "Save Profile Changes"}
         </button>
       </form>
 
-      <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-        <Link href="/change-password" className="font-medium text-zinc-700 dark:text-zinc-300 hover:underline">
-          Change Password
+      <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <Link href="/change-password" className="font-bold text-[#124446] hover:underline">
+          Change Password →
         </Link>
         <Link href="/" className="hover:underline">
-          &larr; Return to Home
+          ← Return to Home
         </Link>
       </div>
     </div>

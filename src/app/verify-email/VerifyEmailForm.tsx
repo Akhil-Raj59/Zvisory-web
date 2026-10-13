@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setUser } = useAuth();
   const queryEmail = searchParams.get("email") || "";
 
   // Derive initial value from URL query parameter without redundant effect
@@ -48,8 +50,21 @@ export function VerifyEmailForm() {
         throw new Error(data.message || "Verification failed");
       }
 
-      // Successfully verified. Redirect user to login with verified banner
-      router.push("/login?verified=true");
+      if (data.user) {
+        setUser(data.user);
+      }
+
+      // Auto-authenticated: redirect directly to role-specific dashboard
+      const role = data.user?.role?.toUpperCase();
+      if (role === "ADMIN") {
+        router.push("/dashboard/admin");
+      } else if (role === "EMPLOYEE") {
+        router.push("/dashboard/employee");
+      } else {
+        // Default: CUSTOMER or legacy CUSTUMER
+        router.push("/dashboard/customer");
+      }
+      router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An error occurred";
       setError(msg);
