@@ -70,7 +70,7 @@ async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Prom
     headers.set("Accept", "application/json");
   }
 
-  if (body !== undefined && !headers.has("Content-Type")) {
+  if (body !== undefined && !(body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -83,7 +83,7 @@ async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Prom
     response = await fetch(url, {
       ...restOptions,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body instanceof FormData ? body : (body !== undefined ? JSON.stringify(body) : undefined),
       cache: "no-store",
     });
   } catch (err: unknown) {
@@ -125,7 +125,7 @@ async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Prom
 
 /**
  * Backend API Client
- * All paths match the Express router mounted at /api/v1/users
+ * Supports all Auth, User, Public Project, and Admin Project Management endpoints.
  */
 export const backendApi = {
   /**
@@ -151,12 +151,9 @@ export const backendApi = {
 
   /**
    * Register a new user account.
-   * Note: The Next.js route handler at /api/auth/register handles avatar (FormData)
-   * by forwarding multipart directly to Express. This server-side method is only
-   * used for non-avatar JSON registrations in server contexts.
    */
   async register(payload: { fullName: string; email: string; password: string }): Promise<ApiSuccessResponse> {
-    return apiFetch<ApiSuccessResponse>("/api/v1/users/register", {
+    return apiFetch<ApiSuccessResponse>("/api/v1/user/register", {
       method: "POST",
       body: payload,
     });
@@ -239,6 +236,134 @@ export const backendApi = {
       method: "POST",
       token,
       body: payload,
+    });
+  },
+
+  // -------------------------------------------------------------
+  // PUBLIC PROJECT ENDPOINTS
+  // -------------------------------------------------------------
+
+  async getProjects(params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "All") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/projects${qs ? `?${qs}` : ""}`, { method: "GET" });
+  },
+
+  async getProjectFilters() {
+    return apiFetch<any>("/api/v1/projects/filters", { method: "GET" });
+  },
+
+  async getProjectBySlug(slug: string) {
+    return apiFetch<any>(`/api/v1/projects/slug/${encodeURIComponent(slug)}`, { method: "GET" });
+  },
+
+  async getFeaturedProjects(limit = 6) {
+    return apiFetch<any>(`/api/v1/projects/featured?limit=${limit}`, { method: "GET" });
+  },
+
+  async getSimilarProjects(id: string, limit = 3) {
+    return apiFetch<any>(`/api/v1/projects/${encodeURIComponent(id)}/similar?limit=${limit}`, { method: "GET" });
+  },
+
+  async getCities() {
+    return apiFetch<any>("/api/v1/projects/cities", { method: "GET" });
+  },
+
+  // -------------------------------------------------------------
+  // ADMIN PROJECT MANAGEMENT ENDPOINTS (PROTECTED)
+  // -------------------------------------------------------------
+
+  async adminGetProjects(token: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "All") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/admin/projects${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetProjectById(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/projects/${encodeURIComponent(id)}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminCreateProject(token: string, payload: any) {
+    return apiFetch<any>("/api/v1/admin/projects", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateProject(token: string, id: string, payload: any) {
+    return apiFetch<any>(`/api/v1/admin/projects/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateStatus(token: string, id: string, status: "draft" | "published" | "archived") {
+    return apiFetch<any>(`/api/v1/admin/projects/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      token,
+      body: { status },
+    });
+  },
+
+  async adminDeleteProject(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/projects/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
+  async adminGetReferenceData(token: string) {
+    return apiFetch<any>("/api/v1/admin/reference-data", {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminUploadMedia(token: string, formData: FormData) {
+    return apiFetch<any>("/api/v1/admin/media/upload", {
+      method: "POST",
+      token,
+      body: formData,
+    });
+  },
+
+  async adminValidateMediaUrl(token: string, url: string) {
+    return apiFetch<any>("/api/v1/admin/media/validate-url", {
+      method: "POST",
+      token,
+      body: { url },
+    });
+  },
+
+  async adminSeedExcelProjects(token: string) {
+    return apiFetch<any>("/api/v1/admin/projects/bulk-seed", {
+      method: "POST",
+      token,
+    });
+  },
+
+  async adminGetStats(token: string) {
+    return apiFetch<any>("/api/v1/admin/stats", {
+      method: "GET",
+      token,
     });
   },
 };

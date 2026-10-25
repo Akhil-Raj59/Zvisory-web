@@ -42,7 +42,7 @@ function decodeJwtPayload(token: string): JwtPayload | null {
  */
 function getRoleDashboard(role?: string): string {
   const r = (role || "").toUpperCase();
-  if (r === "ADMIN") return "/dashboard/admin";
+  if (r === "ADMIN") return "/admin/dashboard";
   if (r === "EMPLOYEE") return "/dashboard/employee";
   return "/dashboard/customer";
 }

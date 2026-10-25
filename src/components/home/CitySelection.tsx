@@ -2,9 +2,20 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { City } from "@/mock/cities";
 
-export function CitySelection({ cities }: { cities: City[] }) {
+// Accepts both the mock City shape (priceRange) and the
+// live backend shape (startingPrice). The service returns startingPrice.
+export interface CityCard {
+  id: string;
+  name: string;
+  projectCount: number;
+  image: string;
+  description: string;
+  startingPrice?: string;
+  priceRange?: string; // legacy mock field
+}
+
+export function CitySelection({ cities }: { cities: CityCard[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function scroll(direction: "left" | "right") {
@@ -79,7 +90,7 @@ export function CitySelection({ cities }: { cities: City[] }) {
                     {city.name}
                   </h3>
                   <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                    Price: {city.priceRange}
+                    Starting from: {city.startingPrice ?? city.priceRange ?? "Price On Request"}
                   </p>
                   <p className="text-xs text-slate-600 line-clamp-2 mt-1.5">
                     {city.description}

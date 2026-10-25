@@ -48,11 +48,12 @@ export function LoginForm() {
         setUser(data.user);
       }
 
-      // Role-based post-login redirect across 3 roles
+      // Role-based post-login redirect
       const role = (data.user?.role ?? "CUSTOMER").toUpperCase();
 
       if (fromParam && !fromParam.includes("login") && !fromParam.includes("register")) {
-        if (fromParam.startsWith("/dashboard/admin") || fromParam.startsWith("/admin")) {
+        // Honor the intended destination if the role has access
+        if (fromParam.startsWith("/admin")) {
           router.push(role === "ADMIN" ? fromParam : "/dashboard/customer");
         } else if (fromParam.startsWith("/dashboard/employee")) {
           router.push(role === "EMPLOYEE" || role === "ADMIN" ? fromParam : "/dashboard/customer");
@@ -61,11 +62,10 @@ export function LoginForm() {
         }
       } else {
         if (role === "ADMIN") {
-          router.push("/dashboard/admin");
+          router.push("/admin/dashboard");
         } else if (role === "EMPLOYEE") {
           router.push("/dashboard/employee");
         } else {
-          // Customer / Custumer
           router.push("/dashboard/customer");
         }
       }

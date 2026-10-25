@@ -47,6 +47,12 @@ export default async function AdminLayout({
                   Dashboard
                 </Link>
                 <Link
+                  href="/admin/projects"
+                  className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors font-semibold text-emerald-600 dark:text-emerald-400"
+                >
+                  Projects Management
+                </Link>
+                <Link
                   href="/health-check"
                   className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >

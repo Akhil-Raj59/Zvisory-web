@@ -14,7 +14,7 @@ export default async function CustomerDashboardPage() {
 
   const role = (user.role || "").toUpperCase();
   if (role !== "CUSTOMER" && role !== "CUSTUMER") {
-    if (role === "ADMIN") redirect("/dashboard/admin");
+    if (role === "ADMIN") redirect("/admin/dashboard");
     if (role === "EMPLOYEE") redirect("/dashboard/employee");
   }
 

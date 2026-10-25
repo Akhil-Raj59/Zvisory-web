@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
+import { projectService } from "@/services/projectService";
 import { propertyService } from "@/services/propertyService";
 import { MOCK_TESTIMONIALS } from "@/mock/testimonials";
 import { Header } from "@/components/layout/Header";
@@ -12,13 +13,18 @@ import { FeaturedProjectsSection } from "@/components/home/FeaturedProjectsSecti
 
 export const metadata = {
   title: "Zvisory | Luxury Real Estate & Property Advisory",
-  description: "Explore verified luxury high-rise apartments, low-rise floors, plots, and commercial properties with expert advisory and home loan assistance."
+  description:
+    "Explore verified luxury high-rise apartments, low-rise floors, plots, and commercial properties with expert advisory and home loan assistance.",
 };
 
 export default async function HomePage() {
   const user = await getCurrentUser();
-  const featuredProperties = await propertyService.getFeaturedProperties();
-  const cities = await propertyService.getAllCities();
+
+  // Fetch real data from backend API concurrently
+  const [featuredProjects, cities] = await Promise.all([
+    projectService.getFeaturedProjects(6),
+    propertyService.getAllCities(),
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
@@ -29,11 +35,11 @@ export default async function HomePage() {
         {/* 1.2 Banner Section with Search Bar */}
         <HeroBanner />
 
-        {/* 1.3 City Selection Section */}
+        {/* 1.3 City Selection Section — data from backend cities endpoint */}
         <CitySelection cities={cities} />
 
-        {/* Featured Projects Section */}
-        <FeaturedProjectsSection properties={featuredProperties} />
+        {/* Featured Projects — data from backend /projects/featured endpoint */}
+        <FeaturedProjectsSection projects={featuredProjects} />
 
         {/* 1.4 Why Choose Us Section */}
         <WhyChooseUs />

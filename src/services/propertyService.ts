@@ -51,11 +51,43 @@ export const propertyService = {
   },
 
   async getAllCities(): Promise<City[]> {
+    try {
+      const { backendApi } = await import("@/lib/api");
+      const res = await backendApi.getCities();
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data.map((dbCity: any) => {
+          const mockMatch = MOCK_CITIES.find(
+            (mc) =>
+              mc.name.toLowerCase() === dbCity.name.toLowerCase() ||
+              mc.id.toLowerCase() === (dbCity.slug || "").toLowerCase()
+          );
+          return {
+            id: dbCity.slug || dbCity.name.toLowerCase().replace(/\s+/g, "-"),
+            name: dbCity.name,
+            projectCount: dbCity.count,
+            priceRange: dbCity.startingPrice || mockMatch?.priceRange || "₹1.5 Cr*",
+            startingPrice: dbCity.startingPrice || mockMatch?.startingPrice || mockMatch?.priceRange || "₹1.5 Cr*",
+            image:
+              mockMatch?.image ||
+              dbCity.image ||
+              "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",
+            description: mockMatch?.description || `Explore verified luxury developments in ${dbCity.name}`,
+          };
+        });
+      }
+    } catch {
+      // fallback
+    }
     return MOCK_CITIES;
   },
 
   async getCityById(id: string): Promise<City | null> {
-    return MOCK_CITIES.find((c) => c.id.toLowerCase() === id.toLowerCase()) || MOCK_CITIES[0] || null;
+    const all = await this.getAllCities();
+    return (
+      all.find((c) => c.id.toLowerCase() === id.toLowerCase() || c.name.toLowerCase() === id.toLowerCase()) ||
+      all[0] ||
+      null
+    );
   }
 };
 

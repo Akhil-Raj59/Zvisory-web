@@ -46,99 +46,56 @@ function SearchContent() {
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [compareModalOpen, setCompareModalOpen] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Load filter options on mount
   useEffect(() => {
-    async function init() {
-      setLoading(true);
-      const [projects, opts] = await Promise.all([
-        projectService.getAllProjects(),
-        projectService.getFilterOptions(),
-      ]);
-      setAllProjects(projects);
+    async function loadOptions() {
+      const opts = await projectService.getFilterOptions();
       setFilterOptions(opts);
-      setLoading(false);
     }
-    init();
+    loadOptions();
   }, []);
 
   const BUDGET_RANGES = ["Under 1 Cr", "1 – 2 Cr", "2 – 3 Cr", "3 – 5 Cr", "5 Cr +"];
 
-  const filteredProjects = useMemo(() => {
-    let result = [...allProjects];
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
 
-    if (query.trim()) {
-      const q = query.toLowerCase().trim();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.location.toLowerCase().includes(q) ||
-          p.city.toLowerCase().includes(q) ||
-          p.developer.toLowerCase().includes(q) ||
-          p.microMarket.toLowerCase().includes(q) ||
-          p.keywords.some((k) => k.toLowerCase().includes(q)) ||
-          p.secondaryKeywords.some((k) => k.toLowerCase().includes(q)) ||
-          p.categories.some((c) => c.toLowerCase().includes(q))
-      );
-    }
-
-    if (city !== "All") {
-      const c = city.toLowerCase();
-      result = result.filter(
-        (p) => p.city.toLowerCase() === c || p.location.toLowerCase().includes(c)
-      );
-    }
-
-    if (category !== "All") {
-      const cat = category.toLowerCase();
-      result = result.filter((p) => p.categories.some((c) => c.toLowerCase() === cat));
-    }
-
-    if (developer !== "All") {
-      const dev = developer.toLowerCase();
-      result = result.filter((p) => p.developer.toLowerCase().includes(dev));
-    }
-
-    if (unitConfig !== "All") {
-      const uc = unitConfig.toLowerCase();
-      result = result.filter((p) => p.unitType.some((u) => u.toLowerCase().includes(uc)));
-    }
-
-    if (budget !== "All") {
-      switch (budget) {
-        case "Under 1 Cr":
-          result = result.filter((p) => p.priceRaw > 0 && p.priceRaw < 10000000);
-          break;
-        case "1 – 2 Cr":
-          result = result.filter((p) => p.priceRaw >= 10000000 && p.priceRaw <= 20000000);
-          break;
-        case "2 – 3 Cr":
-          result = result.filter((p) => p.priceRaw >= 20000000 && p.priceRaw <= 30000000);
-          break;
-        case "3 – 5 Cr":
-          result = result.filter((p) => p.priceRaw >= 30000000 && p.priceRaw <= 50000000);
-          break;
-        case "5 Cr +":
-          result = result.filter((p) => p.priceRaw >= 50000000);
-          break;
+  // Fetch server-filtered, paginated projects
+  useEffect(() => {
+    async function fetchProjects() {
+      setLoading(true);
+      try {
+        const res = await projectService.getPaginatedProjects(
+          {
+            searchQuery: query,
+            city,
+            category,
+            developer,
+            unitConfig,
+            budget,
+            page,
+            limit: 12,
+          },
+          sortBy !== "default" ? sortBy : undefined
+        );
+        setFilteredProjects(res.projects);
+        setTotalCount(res.total);
+        setTotalPages(res.totalPages);
+      } catch (e) {
+        console.error("Failed to load search results", e);
+      } finally {
+        setLoading(false);
       }
     }
-
-    // Sorting
-    if (sortBy === "price_asc") {
-      result = [...result].sort((a, b) => (a.priceRaw || 999999999) - (b.priceRaw || 999999999));
-    } else if (sortBy === "price_desc") {
-      result = [...result].sort((a, b) => (b.priceRaw || 0) - (a.priceRaw || 0));
-    } else if (sortBy === "name_asc") {
-      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === "location_asc") {
-      result = [...result].sort((a, b) => a.city.localeCompare(b.city));
-    }
-
-    return result;
-  }, [allProjects, query, city, category, developer, unitConfig, budget, sortBy]);
+    fetchProjects();
+  }, [query, city, category, developer, unitConfig, budget, sortBy, page]);
 
   const comparedProjects = useMemo(
-    () => allProjects.filter((p) => selectedForCompare.includes(p.slug)),
-    [allProjects, selectedForCompare]
+    () => filteredProjects.filter((p) => selectedForCompare.includes(p.slug)),
+    [filteredProjects, selectedForCompare]
   );
 
   function toggleCompare(slug: string) {
@@ -287,7 +244,7 @@ function SearchContent() {
           <span>
             {loading
               ? "Loading..."
-              : `${filteredProjects.length} of ${allProjects.length} projects`}
+              : `Showing ${filteredProjects.length} of ${totalCount} projects (Page ${page} of ${totalPages})`}
           </span>
           {activeFilterCount > 0 && (
             <button
@@ -441,6 +398,35 @@ function SearchContent() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-6 pb-2">
+          <button
+            onClick={() => {
+              setPage((p) => Math.max(1, p - 1));
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-xs"
+          >
+            ← Previous
+          </button>
+          <span className="text-xs font-semibold text-slate-600">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => {
+              setPage((p) => Math.min(totalPages, p + 1));
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            disabled={page >= totalPages}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-xs"
+          >
+            Next →
+          </button>
         </div>
       )}
 

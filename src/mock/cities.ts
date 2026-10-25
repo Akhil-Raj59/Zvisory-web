@@ -2,6 +2,7 @@ export interface City {
   id: string;
   name: string;
   priceRange: string;
+  startingPrice?: string;
   projectCount: number;
   image: string;
   description: string;

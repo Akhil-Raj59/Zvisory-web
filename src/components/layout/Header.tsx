@@ -28,7 +28,7 @@ export function Header({
   const getDashboardLink = () => {
     if (!user || !user.role) return "/login";
     const role = user.role.toUpperCase();
-    if (role === "ADMIN") return "/dashboard/admin";
+    if (role === "ADMIN") return "/admin/dashboard";
     if (role === "EMPLOYEE") return "/dashboard/employee";
     return "/dashboard/customer";
   };

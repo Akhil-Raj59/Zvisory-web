@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getAuthToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { backendApi } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Dashboard Overview | Zvisory Admin",
@@ -12,22 +13,152 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AdminDashboardPage() {
-  // Auth is already enforced by admin/layout.tsx — this is just for user data
-  const user = await getCurrentUser();
+interface StatsData {
+  projects: {
+    total: number;
+    published: number;
+    draft: number;
+    archived: number;
+    featured: number;
+  };
+  cities: number;
+  developers: number;
+  recentProjects: Array<{
+    _id: string;
+    title: string;
+    slug: string;
+    status: string;
+    launchStatus: string;
+    updatedAt: string;
+    city: string;
+    developer: string;
+    cardBanner?: string;
+  }>;
+}
 
-  if (!user) {
-    redirect("/login");
+async function getAdminStats(token: string): Promise<StatsData | null> {
+  try {
+    const res = await backendApi.adminGetStats(token);
+    if (res?.success && res.data) return res.data as StatsData;
+    return null;
+  } catch {
+    return null;
   }
+}
+
+const STATUS_PILL: Record<string, string> = {
+  published: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
+  draft: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
+  archived: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+};
+
+export default async function AdminDashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const token = await getAuthToken();
+  const stats = token ? await getAdminStats(token) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Welcome back, {user.fullName}.
+          Welcome back, {user.fullName}. Here&apos;s your project overview.
         </p>
       </div>
+
+      {/* Stats Grid */}
+      {stats ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { label: "Total Projects", value: stats.projects.total, color: "text-zinc-900 dark:text-zinc-100" },
+            { label: "Published", value: stats.projects.published, color: "text-emerald-600 dark:text-emerald-400" },
+            { label: "Draft", value: stats.projects.draft, color: "text-amber-600 dark:text-amber-400" },
+            { label: "Archived", value: stats.projects.archived, color: "text-zinc-500 dark:text-zinc-400" },
+            { label: "Featured", value: stats.projects.featured, color: "text-indigo-600 dark:text-indigo-400" },
+            { label: "Cities", value: stats.cities, color: "text-sky-600 dark:text-sky-400" },
+          ].map(({ label, value, color }) => (
+            <div
+              key={label}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col gap-1"
+            >
+              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</span>
+              <span className={`text-3xl font-bold tabular-nums ${color}`}>{value}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/40 text-sm text-amber-800 dark:text-amber-300">
+          ⚠️ Could not load live stats — backend may be offline or database is empty. Stats will appear after seeding.
+        </div>
+      )}
+
+      {/* Quick Actions */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+        <h2 className="text-base font-semibold mb-4">Quick Actions</h2>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/projects"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+            All Projects
+          </Link>
+          <Link
+            href="/admin/projects/new"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            New Project
+          </Link>
+          <Link
+            href="/profile"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          >
+            Edit Profile
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Projects */}
+      {stats?.recentProjects && stats.recentProjects.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <h2 className="text-base font-semibold">Recently Updated Projects</h2>
+            <Link href="/admin/projects" className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 underline">
+              View all
+            </Link>
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            {stats.recentProjects.map((p) => (
+              <div key={p._id} className="flex items-center gap-4 px-6 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                {p.cardBanner ? (
+                  <div className="relative h-10 w-16 rounded overflow-hidden flex-shrink-0 bg-zinc-100">
+                    <Image src={p.cardBanner} alt={p.title} fill sizes="64px" className="object-cover" unoptimized />
+                  </div>
+                ) : (
+                  <div className="h-10 w-16 rounded flex-shrink-0 bg-zinc-200 dark:bg-zinc-700" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{p.title}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{p.developer} · {p.city}</p>
+                </div>
+                <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_PILL[p.status] || STATUS_PILL.archived}`}>
+                  {p.status}
+                </span>
+                <Link
+                  href={`/admin/projects/${p._id}`}
+                  className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 underline flex-shrink-0"
+                >
+                  Edit
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* User Profile Card */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs overflow-hidden">

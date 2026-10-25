@@ -57,7 +57,7 @@ export function VerifyEmailForm() {
       // Auto-authenticated: redirect directly to role-specific dashboard
       const role = data.user?.role?.toUpperCase();
       if (role === "ADMIN") {
-        router.push("/dashboard/admin");
+        router.push("/admin/dashboard");
       } else if (role === "EMPLOYEE") {
         router.push("/dashboard/employee");
       } else {
