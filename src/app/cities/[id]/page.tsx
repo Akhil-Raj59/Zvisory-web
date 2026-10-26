@@ -4,6 +4,7 @@ import { projectService } from "@/services/projectService";
 import { propertyService } from "@/services/propertyService";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SafeImage } from "@/components/SafeImage";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -55,10 +56,10 @@ export default async function CityDetailsPage({ params }: Props) {
       <main className="flex-1 space-y-10 pb-16">
         {/* City Hero */}
         <div className="relative h-[340px] bg-slate-950 flex items-center justify-center overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <SafeImage
             src={cityImage}
             alt={cityName}
+            fallbackSrc={FALLBACK_IMG}
             className="absolute inset-0 w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#124446] via-[#124446]/60 to-transparent" />
@@ -126,14 +127,11 @@ export default async function CityDetailsPage({ params }: Props) {
                 className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between"
               >
                 <div className="relative h-48 w-full overflow-hidden bg-slate-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <SafeImage
                     src={proj.image}
                     alt={proj.title}
+                    fallbackSrc={FALLBACK_IMG}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = FALLBACK_IMG;
-                    }}
                   />
                   {proj.status && (
                     <div className="absolute top-2 left-2 bg-[#124446] text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">
