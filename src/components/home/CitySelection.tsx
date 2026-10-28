@@ -8,6 +8,7 @@ import Link from "next/link";
 export interface CityCard {
   id: string;
   name: string;
+  slug?: string;
   projectCount: number;
   image: string;
   description: string;
@@ -98,7 +99,7 @@ export function CitySelection({ cities }: { cities: CityCard[] }) {
                 </div>
 
                 <Link
-                  href={`/cities/${city.id}`}
+                  href={`/cities/${city.slug || city.id}`}
                   className="w-full py-2 px-3 rounded-lg bg-slate-100 group-hover:bg-[#124446] text-slate-800 group-hover:text-white text-xs font-bold uppercase tracking-wider text-center transition-colors block"
                 >
                   View Projects →

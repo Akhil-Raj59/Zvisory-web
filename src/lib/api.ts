@@ -366,4 +366,114 @@ export const backendApi = {
       token,
     });
   },
+
+  // -------------------------------------------------------------
+  // PUBLIC CITY ENDPOINTS
+  // -------------------------------------------------------------
+
+  async getPublicCities(params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/cities${qs ? `?${qs}` : ""}`, { method: "GET" });
+  },
+
+  async getCityBySlug(slug: string) {
+    return apiFetch<any>(`/api/v1/cities/${encodeURIComponent(slug)}`, { method: "GET" });
+  },
+
+  async getCityProjects(slug: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "All") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/cities/${encodeURIComponent(slug)}/projects${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+    });
+  },
+
+  // -------------------------------------------------------------
+  // ADMIN CITY MANAGEMENT ENDPOINTS (PROTECTED)
+  // -------------------------------------------------------------
+
+  async adminGetCities(token: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "all") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/admin/cities${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetCityById(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetCityProjects(token: string, id: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "all") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}/projects${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminCreateCity(token: string, payload: any) {
+    return apiFetch<any>("/api/v1/admin/cities", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateCity(token: string, id: string, payload: any) {
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateCityStatus(token: string, id: string, status: "draft" | "published" | "archived") {
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      token,
+      body: { status },
+    });
+  },
+
+  async adminTransferCityProjects(token: string, id: string, targetCityId: string) {
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}/transfer`, {
+      method: "POST",
+      token,
+      body: { targetCityId },
+    });
+  },
+
+  async adminDeleteCity(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/cities/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

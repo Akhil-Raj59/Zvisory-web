@@ -15,19 +15,36 @@ const FALLBACK_IMG = "https://images.unsplash.com/photo-1570129477492-45c003edd2
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const cityProjects = await projectService.getProjectsByCity(id);
-  const cityName =
-    cityProjects.length > 0
-      ? cityProjects[0].city
-      : id.charAt(0).toUpperCase() + id.slice(1);
+  const [cityData, cityProjects] = await Promise.all([
+    propertyService.getCityById(id),
+    projectService.getProjectsByCity(id),
+  ]);
+
+  if (!cityData && cityProjects.length === 0) {
+    return {
+      title: "City Not Found | Zvisory",
+      description: "Explore luxury real estate developments across India with Zvisory.",
+    };
+  }
+
+  const cityName = cityData?.name || (cityProjects.length > 0 ? cityProjects[0].city : id);
+  const title =
+    cityData?.seo?.title ||
+    `Luxury Real Estate & Properties in ${cityName} | Zvisory`;
+  const description =
+    cityData?.seo?.description ||
+    cityData?.shortDescription ||
+    `Explore ${cityProjects.length}+ verified luxury residential projects in ${cityName}. Browse apartments, penthouses, and premium gated communities.`;
+  const ogImage = cityData?.seo?.ogImage || cityData?.image || FALLBACK_IMG;
 
   return {
-    title: `Luxury Properties in ${cityName} | Zvisory`,
-    description: `Explore ${cityProjects.length}+ verified luxury residential projects in ${cityName}. Browse apartments, villas, and premium developments.`,
+    title,
+    description,
     alternates: { canonical: `/cities/${id}` },
     openGraph: {
-      title: `Luxury Properties in ${cityName} | Zvisory`,
-      description: `${cityProjects.length}+ premium real estate projects in ${cityName}.`,
+      title,
+      description,
+      images: [{ url: ogImage }],
     },
   };
 }
@@ -35,49 +52,78 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CityDetailsPage({ params }: Props) {
   const { id } = await params;
 
-  // Fetch both city meta info and Excel-based real projects
+  // Fetch both city meta info and real projects
   const [cityData, cityProjects] = await Promise.all([
     propertyService.getCityById(id),
     projectService.getProjectsByCity(id),
   ]);
 
-  if (cityProjects.length === 0 && !cityData) notFound();
+  if (cityProjects.length === 0 && !cityData) {
+    notFound();
+  }
+
+  // If city is marked draft or archived in DB, return 404 for public visibility
+  if (cityData?.status && cityData.status !== "published") {
+    notFound();
+  }
 
   const cityName =
     cityData?.name ||
     (cityProjects.length > 0 ? cityProjects[0].city : id.charAt(0).toUpperCase() + id.slice(1));
 
-  const cityImage = cityData?.image || FALLBACK_IMG;
+  const cityImage = cityData?.coverImage || cityData?.image || FALLBACK_IMG;
+
+  // JSON-LD Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Place",
+    name: cityName,
+    description: cityData?.description || cityData?.shortDescription,
+    image: cityImage,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: cityName,
+      addressRegion: cityData?.state || undefined,
+      addressCountry: cityData?.country || "IN",
+    },
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
 
       <main className="flex-1 space-y-10 pb-16">
         {/* City Hero */}
-        <div className="relative h-[340px] bg-slate-950 flex items-center justify-center overflow-hidden">
+        <div className="relative h-[360px] bg-slate-950 flex items-center justify-center overflow-hidden">
           <SafeImage
             src={cityImage}
             alt={cityName}
             fallbackSrc={FALLBACK_IMG}
-            className="absolute inset-0 w-full h-full object-cover opacity-40"
+            className="absolute inset-0 w-full h-full object-cover opacity-35"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#124446] via-[#124446]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#124446] via-[#124446]/65 to-transparent" />
           <div className="relative z-10 max-w-4xl mx-auto text-center text-white px-4 space-y-3">
             <span className="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-[#D3A479] text-[#124446]">
-              {cityProjects.length}+ Verified Projects
+              {cityProjects.length}+ Verified Developments
             </span>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
               Luxury Properties in {cityName}
             </h1>
-            {cityData?.description && (
-              <p className="text-sm text-[#BDD4E7] max-w-xl mx-auto">{cityData.description}</p>
+            {cityData?.shortDescription && (
+              <p className="text-sm text-[#BDD4E7] max-w-2xl mx-auto font-medium">
+                {cityData.shortDescription}
+              </p>
             )}
+
             {/* Quick Stats */}
             <div className="flex flex-wrap gap-4 justify-center pt-2 text-xs">
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
                 <div className="font-black text-xl">{cityProjects.length}</div>
-                <div className="text-[#BDD4E7]">Projects</div>
+                <div className="text-[#BDD4E7]">Live Projects</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
                 <div className="font-black text-xl">
@@ -87,16 +133,16 @@ export default async function CityDetailsPage({ params }: Props) {
               </div>
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
                 <div className="font-black text-xl">
-                  {[...new Set(cityProjects.map((p) => p.categories[0]))].length}
+                  {cityData?.startingPrice || "₹1.5 Cr*"}
                 </div>
-                <div className="text-[#BDD4E7]">Categories</div>
+                <div className="text-[#BDD4E7]">Starting Price</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb & City Highlights */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="text-xs text-slate-500 flex items-center gap-2">
             <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
@@ -104,16 +150,66 @@ export default async function CityDetailsPage({ params }: Props) {
             <span>/</span>
             <span className="text-[#124446] font-bold">{cityName}</span>
           </div>
+
+          {/* Highlights & Localities Chips */}
+          {((cityData?.highlights && cityData.highlights.length > 0) ||
+            (cityData?.localities && cityData.localities.length > 0)) && (
+            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              {cityData.highlights && cityData.highlights.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold uppercase text-[#124446] tracking-wider">
+                    Corridors:
+                  </span>
+                  {cityData.highlights.map((h, i) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#BDD4E7]/30 text-[#124446]"
+                    >
+                      {h}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {cityData.localities && cityData.localities.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold uppercase text-[#D3A479] tracking-wider">
+                    Prime Localities:
+                  </span>
+                  {cityData.localities.map((loc, i) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"
+                    >
+                      📍 {loc}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Detailed Overview */}
+          {cityData?.description && (
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <h2 className="text-base font-bold text-[#124446]">
+                About Luxury Real Estate in {cityName}
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                {cityData.description}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Projects Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex items-center justify-between border-b pb-4">
             <h2 className="text-xl sm:text-2xl font-black text-[#124446]">
-              Projects in {cityName}
+              Verified Developments in {cityName}
             </h2>
             <Link
-              href={`/search?city=${cityName}`}
+              href={`/search?city=${encodeURIComponent(cityName)}`}
               className="text-xs font-bold text-[#D3A479] hover:underline"
             >
               Filter & View All →
@@ -145,13 +241,13 @@ export default async function CityDetailsPage({ params }: Props) {
                 <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                   <div>
                     <span className="text-[10px] font-bold uppercase text-[#8693AB]">
-                      {proj.categories[0]} · {proj.microMarket || proj.city}
+                      {proj.categories?.[0] || "Luxury"} · {proj.microMarket || proj.city}
                     </span>
                     <h3 className="font-bold text-slate-900 text-base group-hover:text-[#124446] transition-colors mt-0.5">
                       {proj.title}
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">📍 {proj.location}</p>
-                    {proj.unitType.length > 0 && (
+                    {proj.unitType && proj.unitType.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {proj.unitType.slice(0, 3).map((u) => (
                           <span
@@ -180,7 +276,7 @@ export default async function CityDetailsPage({ params }: Props) {
           {cityProjects.length === 0 && (
             <div className="py-16 text-center bg-white rounded-2xl border p-8 space-y-3">
               <div className="text-3xl">🏙️</div>
-              <p className="text-slate-500 text-sm">No projects found for this city.</p>
+              <p className="text-slate-500 text-sm">No published projects found for this city.</p>
               <Link
                 href="/search"
                 className="inline-block px-6 py-2.5 rounded-xl bg-[#124446] text-white text-xs font-bold"

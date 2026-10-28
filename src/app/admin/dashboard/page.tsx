@@ -22,6 +22,12 @@ interface StatsData {
     featured: number;
   };
   cities: number;
+  cityStats?: {
+    total: number;
+    published: number;
+    distinctInProjects: number;
+  };
+  projectsByCity?: Array<{ _id: string; total: number; published: number }>;
   developers: number;
   recentProjects: Array<{
     _id: string;
@@ -65,7 +71,7 @@ export default async function AdminDashboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Welcome back, {user.fullName}. Here&apos;s your project overview.
+          Welcome back, {user.fullName}. Real-time statistics across projects and city modules.
         </p>
       </div>
 
@@ -75,10 +81,10 @@ export default async function AdminDashboardPage() {
           {[
             { label: "Total Projects", value: stats.projects.total, color: "text-zinc-900 dark:text-zinc-100" },
             { label: "Published", value: stats.projects.published, color: "text-emerald-600 dark:text-emerald-400" },
-            { label: "Draft", value: stats.projects.draft, color: "text-amber-600 dark:text-amber-400" },
-            { label: "Archived", value: stats.projects.archived, color: "text-zinc-500 dark:text-zinc-400" },
-            { label: "Featured", value: stats.projects.featured, color: "text-indigo-600 dark:text-indigo-400" },
-            { label: "Cities", value: stats.cities, color: "text-sky-600 dark:text-sky-400" },
+            { label: "Draft Projects", value: stats.projects.draft, color: "text-amber-600 dark:text-amber-400" },
+            { label: "Archived Projects", value: stats.projects.archived, color: "text-zinc-500 dark:text-zinc-400" },
+            { label: "Total Cities", value: stats.cityStats?.total ?? stats.cities, color: "text-sky-600 dark:text-sky-400" },
+            { label: "Published Cities", value: stats.cityStats?.published ?? stats.cities, color: "text-indigo-600 dark:text-indigo-400" },
           ].map(({ label, value, color }) => (
             <div
               key={label}
@@ -91,7 +97,7 @@ export default async function AdminDashboardPage() {
         </div>
       ) : (
         <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/40 text-sm text-amber-800 dark:text-amber-300">
-          ⚠️ Could not load live stats — backend may be offline or database is empty. Stats will appear after seeding.
+          ⚠️ Could not load live stats — backend may be offline or database is empty.
         </div>
       )}
 
@@ -103,24 +109,65 @@ export default async function AdminDashboardPage() {
             href="/admin/projects"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
-            All Projects
+            <span>📁</span> All Projects
           </Link>
           <Link
             href="/admin/projects/new"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            New Project
+            <span>+</span> New Project
           </Link>
           <Link
-            href="/profile"
+            href="/admin/cities"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors shadow-xs"
+          >
+            <span>🏙️</span> City Management
+          </Link>
+          <Link
+            href="/admin/cities/new"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
-            Edit Profile
+            <span>+</span> New City
           </Link>
         </div>
       </div>
+
+      {/* Projects by City Distribution */}
+      {stats?.projectsByCity && stats.projectsByCity.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <span>🏙️</span> Projects Grouped by City
+            </h2>
+            <Link
+              href="/admin/cities"
+              className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+            >
+              Manage all cities →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {stats.projectsByCity.map((c) => (
+              <div
+                key={c._id}
+                className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 flex items-center justify-between"
+              >
+                <div>
+                  <span className="font-bold text-xs text-zinc-900 dark:text-zinc-100 block">
+                    {c._id || "Unknown"}
+                  </span>
+                  <span className="text-[10px] text-zinc-400">
+                    {c.published} published
+                  </span>
+                </div>
+                <span className="text-base font-black tabular-nums text-emerald-600 dark:text-emerald-400">
+                  {c.total}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Projects */}
       {stats?.recentProjects && stats.recentProjects.length > 0 && (

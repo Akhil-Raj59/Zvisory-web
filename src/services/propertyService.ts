@@ -53,40 +53,81 @@ export const propertyService = {
   async getAllCities(): Promise<City[]> {
     try {
       const { backendApi } = await import("@/lib/api");
-      const res = await backendApi.getCities();
+      const res = await backendApi.getPublicCities();
       if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-        return res.data.map((dbCity: any) => {
-          const mockMatch = MOCK_CITIES.find(
-            (mc) =>
-              mc.name.toLowerCase() === dbCity.name.toLowerCase() ||
-              mc.id.toLowerCase() === (dbCity.slug || "").toLowerCase()
-          );
-          return {
-            id: dbCity.slug || dbCity.name.toLowerCase().replace(/\s+/g, "-"),
-            name: dbCity.name,
-            projectCount: dbCity.count,
-            priceRange: dbCity.startingPrice || mockMatch?.priceRange || "₹1.5 Cr*",
-            startingPrice: dbCity.startingPrice || mockMatch?.startingPrice || mockMatch?.priceRange || "₹1.5 Cr*",
-            image:
-              mockMatch?.image ||
-              dbCity.image ||
-              "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",
-            description: mockMatch?.description || `Explore verified luxury developments in ${dbCity.name}`,
-          };
-        });
+        return res.data.map((dbCity: any) => ({
+          id: dbCity.slug || dbCity.name.toLowerCase().replace(/\s+/g, "-"),
+          slug: dbCity.slug || dbCity.name.toLowerCase().replace(/\s+/g, "-"),
+          name: dbCity.name,
+          state: dbCity.state || "",
+          country: dbCity.country || "India",
+          projectCount: dbCity.projectCount ?? dbCity.count ?? 0,
+          priceRange: dbCity.startingPrice || "₹1.5 Cr*",
+          startingPrice: dbCity.startingPrice || "₹1.5 Cr*",
+          image:
+            dbCity.image ||
+            dbCity.coverImage ||
+            "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",
+          coverImage: dbCity.coverImage || dbCity.image || "",
+          shortDescription: dbCity.shortDescription || "",
+          description: dbCity.description || dbCity.shortDescription || `Explore verified luxury developments in ${dbCity.name}`,
+          highlights: dbCity.highlights || [],
+          localities: dbCity.localities || [],
+          gallery: dbCity.gallery || [],
+          seo: dbCity.seo,
+          status: dbCity.status || "published",
+          isFeatured: Boolean(dbCity.isFeatured),
+        }));
       }
     } catch {
-      // fallback
+      // fallback if backend is offline
     }
     return MOCK_CITIES;
   },
 
   async getCityById(id: string): Promise<City | null> {
+    try {
+      const { backendApi } = await import("@/lib/api");
+      const res = await backendApi.getCityBySlug(id);
+      if (res && res.success && res.data) {
+        const d = res.data;
+        return {
+          id: d.slug || d.name.toLowerCase().replace(/\s+/g, "-"),
+          slug: d.slug,
+          name: d.name,
+          state: d.state || "",
+          country: d.country || "India",
+          projectCount: d.publishedProjectsCount ?? d.projectCount ?? 0,
+          priceRange: d.startingPrice || "₹1.5 Cr*",
+          startingPrice: d.startingPrice || "₹1.5 Cr*",
+          image:
+            d.image ||
+            d.coverImage ||
+            "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",
+          coverImage: d.coverImage || d.image || "",
+          shortDescription: d.shortDescription || "",
+          description: d.description || d.shortDescription || `Explore verified luxury developments in ${d.name}`,
+          highlights: d.highlights || [],
+          localities: d.localities || [],
+          gallery: d.gallery || [],
+          seo: d.seo,
+          status: d.status || "published",
+          isFeatured: Boolean(d.isFeatured),
+        };
+      }
+    } catch {
+      // fallback to list search
+    }
+
     const all = await this.getAllCities();
+    const cleanId = (id || "").toLowerCase().trim();
     return (
-      all.find((c) => c.id.toLowerCase() === id.toLowerCase() || c.name.toLowerCase() === id.toLowerCase()) ||
-      all[0] ||
-      null
+      all.find(
+        (c) =>
+          c.id.toLowerCase() === cleanId ||
+          c.name.toLowerCase() === cleanId ||
+          (c.slug && c.slug.toLowerCase() === cleanId)
+      ) || null
     );
   }
 };

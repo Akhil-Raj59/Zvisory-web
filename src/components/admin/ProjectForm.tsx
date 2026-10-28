@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -30,6 +30,50 @@ export function ProjectForm({ initialData, isEdit = false, projectId }: Props) {
   );
   const [developer, setDeveloper] = useState(initialData?.developer || "");
   const [city, setCity] = useState(initialData?.city || "Gurugram");
+  const [cityList, setCityList] = useState<Array<{ name: string; slug: string; state?: string }>>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [cityError, setCityError] = useState<string | null>(null);
+  const [citySearchQuery, setCitySearchQuery] = useState("");
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadCities() {
+      setLoadingCities(true);
+      setCityError(null);
+      try {
+        const res = await fetch("/api/admin/reference-data");
+        const json = await res.json();
+        if (json.success && json.data) {
+          if (json.data.registeredCities && Array.isArray(json.data.registeredCities)) {
+            setCityList(json.data.registeredCities);
+          } else if (json.data.cities && Array.isArray(json.data.cities)) {
+            setCityList(
+              json.data.cities.map((cName: string) => ({
+                name: cName,
+                slug: cName.toLowerCase().replace(/\s+/g, "-"),
+              }))
+            );
+          }
+        }
+      } catch (err: unknown) {
+        setCityError("Failed to load registered cities from server.");
+      } finally {
+        setLoadingCities(false);
+      }
+    }
+    loadCities();
+  }, []);
+
+  const isCityMismatch =
+    Boolean(city.trim()) &&
+    cityList.length > 0 &&
+    !cityList.some((c) => c.name.toLowerCase() === city.trim().toLowerCase());
+
+  const filteredCities = cityList.filter(
+    (c) =>
+      c.name.toLowerCase().includes(citySearchQuery.toLowerCase()) ||
+      (c.state && c.state.toLowerCase().includes(citySearchQuery.toLowerCase()))
+  );
   const [microMarket, setMicroMarket] = useState(initialData?.microMarket || "");
   const [location, setLocation] = useState(initialData?.location || "");
   const [categories, setCategories] = useState<string>(
@@ -524,18 +568,114 @@ export function ProjectForm({ initialData, isEdit = false, projectId }: Props) {
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
-                City <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="e.g. Gurugram, Delhi, Noida, Bengaluru"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:ring-2 focus:ring-emerald-500"
-              />
+            <div className="space-y-1 relative">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
+                  City <span className="text-rose-500">*</span>
+                </label>
+                <Link
+                  href="/admin/cities/new"
+                  target="_blank"
+                  className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                >
+                  + Add New City
+                </Link>
+              </div>
+
+              {/* City Selection Dropdown Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsCityDropdownOpen((prev) => !prev)}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-left text-sm flex items-center justify-between bg-white dark:bg-zinc-900 ${
+                    isCityMismatch
+                      ? "border-amber-300 dark:border-amber-700 ring-1 ring-amber-300"
+                      : "border-slate-200 dark:border-zinc-800"
+                  } focus:ring-2 focus:ring-emerald-500 cursor-pointer`}
+                >
+                  <span className={city ? "text-slate-900 dark:text-zinc-100 font-medium" : "text-slate-400"}>
+                    {city || "-- Select Registered City --"}
+                  </span>
+                  <span className="text-xs text-slate-400">▼</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isCityDropdownOpen && (
+                  <div className="absolute z-30 left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl p-2 space-y-2 max-h-64 overflow-hidden flex flex-col">
+                    <input
+                      type="text"
+                      value={citySearchQuery}
+                      onChange={(e) => setCitySearchQuery(e.target.value)}
+                      placeholder="Type to filter cities..."
+                      className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 text-xs bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-zinc-100"
+                      autoFocus
+                    />
+
+                    {loadingCities ? (
+                      <div className="p-3 text-center text-xs text-slate-500">Loading cities...</div>
+                    ) : cityError ? (
+                      <div className="p-3 text-center text-xs text-rose-500">{cityError}</div>
+                    ) : (
+                      <div className="overflow-y-auto max-h-44 space-y-0.5">
+                        {filteredCities.map((c) => (
+                          <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => {
+                              setCity(c.name);
+                              setIsCityDropdownOpen(false);
+                              setCitySearchQuery("");
+                            }}
+                            className={`w-full px-3 py-2 rounded-lg text-left text-xs flex items-center justify-between hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors ${
+                              c.name.toLowerCase() === city.toLowerCase()
+                                ? "bg-emerald-50 dark:bg-emerald-950/50 font-bold text-emerald-800 dark:text-emerald-300"
+                                : "text-slate-700 dark:text-zinc-300"
+                            }`}
+                          >
+                            <span>{c.name}</span>
+                            {c.state && <span className="text-[10px] text-slate-400">{c.state}</span>}
+                          </button>
+                        ))}
+
+                        {filteredCities.length === 0 && (
+                          <div className="p-3 text-center text-xs text-slate-500 space-y-1">
+                            <p>No matching city found.</p>
+                            <Link
+                              href="/admin/cities/new"
+                              target="_blank"
+                              className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline block"
+                            >
+                              + Register new city in City Management →
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="pt-1 border-t border-slate-100 dark:border-zinc-800 text-center">
+                      <Link
+                        href="/admin/cities"
+                        target="_blank"
+                        className="text-[11px] text-slate-500 hover:text-emerald-600 underline"
+                      >
+                        Open City Management ↗
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Mismatch Warning Alert */}
+              {isCityMismatch && (
+                <div className="mt-1.5 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-200 space-y-1">
+                  <div className="font-bold flex items-center gap-1">
+                    <span>⚠️</span> Unmatched Legacy Value: &quot;{city}&quot;
+                  </div>
+                  <p>
+                    This project&apos;s city string does not match any registered City. Select a registered city above, or register this city in City Management.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-1">

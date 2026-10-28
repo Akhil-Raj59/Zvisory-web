@@ -1,11 +1,29 @@
 export interface City {
   id: string;
   name: string;
-  priceRange: string;
+  slug?: string;
+  state?: string;
+  country?: string;
+  priceRange?: string;
   startingPrice?: string;
   projectCount: number;
   image: string;
+  coverImage?: string;
+  shortDescription?: string;
   description: string;
+  highlights?: string[];
+  localities?: string[];
+  gallery?: string[];
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+  };
+  status?: string;
+  isFeatured?: boolean;
 }
 
 export const MOCK_CITIES: City[] = [
