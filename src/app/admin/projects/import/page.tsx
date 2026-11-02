@@ -13,10 +13,11 @@ interface ImportError {
 
 interface ImportSummary {
   totalRows: number;
-  imported: number;
+  created: number;
+  updated: number;
   failed: number;
   skipped: number;
-  duplicates: number;
+  batchDuplicates: number;
   processingMs?: number;
 }
 
@@ -130,9 +131,17 @@ export default function BulkImportPage() {
   // ── Error report download ───────────────────────────────────
   const handleDownloadErrorReport = () => {
     if (errors.length === 0) return;
-    const header = ["Excel Row", "Project", "Field", "Error", "Suggestion"].join(",");
-    const rows = errors.map((e) =>
-      [e.row, `"${e.project}"`, `"${e.field}"`, `"${e.error.replace(/"/g, "\"\"")}"`, `"${e.suggestion || ""}"`].join(",")
+    const header = ["Excel Row", "Project", "Slug", "Action", "Field", "Error", "Suggestion"].join(",");
+    const rows = (errors as any[]).map((e) =>
+      [
+        e.row,
+        `"${e.project}"`,
+        `"${e.slug || ""}"`,
+        `"${e.action || ""}"`,
+        `"${e.field}"`,
+        `"${e.error.replace(/"/g, '""')}"`,
+        `"${(e.suggestion || "").replace(/"/g, '""')}"`,
+      ].join(",")
     );
     const csv = [header, ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -153,9 +162,9 @@ export default function BulkImportPage() {
   const paginatedErrors = filteredErrors.slice((errorPage - 1) * ERROR_PAGE_SIZE, errorPage * ERROR_PAGE_SIZE);
 
   const importStatus = summary
-    ? summary.imported === summary.totalRows
+    ? summary.failed === 0 && summary.batchDuplicates === 0
       ? "success"
-      : summary.imported === 0
+      : summary.created === 0 && summary.updated === 0
       ? "failure"
       : "partial"
     : null;
@@ -230,10 +239,12 @@ export default function BulkImportPage() {
             "✅ Use the exact city and developer names registered in the system",
             "✅ Separate multiple values with semicolons (;)",
             "✅ Separate location categories with pipes (|)",
-            "✅ Date formats: YYYY-MM-DD or text (e.g. Q4 2025)",
+            "🔄 New slug (keywords) → project is CREATED",
+            "🔄 Existing slug → project is UPDATED (no duplicate created)",
+            "🔄 Blank optional cells → existing DB values are PRESERVED during update",
+            "⚠️ Same slug twice in one file → only first row processed, second skipped",
             "⚠️ Maximum 500 rows per upload — split larger files into batches",
             "⚠️ Maximum file size: 10 MB (.xlsx or .xls only)",
-            "⚠️ Duplicates are detected by slug and will be skipped",
             "⚠️ Review failed rows in the error report and fix before re-uploading",
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-2">
@@ -356,13 +367,14 @@ export default function BulkImportPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
               {[
                 { label: "Total Rows", value: summary.totalRows, color: "text-zinc-700 dark:text-zinc-300" },
-                { label: "Imported", value: summary.imported, color: "text-emerald-700 dark:text-emerald-300" },
+                { label: "Created", value: summary.created, color: "text-emerald-700 dark:text-emerald-300" },
+                { label: "Updated", value: summary.updated, color: "text-sky-700 dark:text-sky-300" },
                 { label: "Failed", value: summary.failed, color: "text-rose-700 dark:text-rose-300" },
                 { label: "Skipped", value: summary.skipped, color: "text-amber-700 dark:text-amber-300" },
-                { label: "Duplicates", value: summary.duplicates, color: "text-zinc-500" },
+                { label: "Batch Dupes", value: summary.batchDuplicates, color: "text-zinc-500" },
               ].map((stat) => (
                 <div key={stat.label} className="bg-white/70 dark:bg-zinc-900/70 rounded-xl p-3 text-center">
                   <div className={`text-xl font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
