@@ -50,13 +50,25 @@ export default async function AdminLayout({
                   href="/admin/projects"
                   className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >
-                  Projects Management
+                  Projects
+                </Link>
+                <Link
+                  href="/admin/projects/import"
+                  className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                >
+                  Bulk Import
                 </Link>
                 <Link
                   href="/admin/cities"
                   className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >
-                  Cities Management
+                  Cities
+                </Link>
+                <Link
+                  href="/admin/developers"
+                  className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                >
+                  Developers
                 </Link>
                 <Link
                   href="/health-check"

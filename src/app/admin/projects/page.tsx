@@ -207,6 +207,13 @@ export default function AdminProjectsPage() {
             )}
           </button>
           <Link
+            href="/admin/projects/import"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-xs font-bold uppercase tracking-wider transition-all"
+          >
+            <span>📊</span>
+            <span>Bulk Import</span>
+          </Link>
+          <Link
             href="/admin/projects/new"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
           >

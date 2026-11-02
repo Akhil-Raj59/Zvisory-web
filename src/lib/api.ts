@@ -476,4 +476,101 @@ export const backendApi = {
       token,
     });
   },
+
+  // -------------------------------------------------------------
+  // ADMIN DEVELOPER MANAGEMENT ENDPOINTS (PROTECTED)
+  // -------------------------------------------------------------
+
+  async adminGetDevelopers(token: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "all") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/admin/developers${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetDeveloperById(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetDeveloperProjects(token: string, id: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "all") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}/projects${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminCreateDeveloper(token: string, payload: any) {
+    return apiFetch<any>("/api/v1/admin/developers", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateDeveloper(token: string, id: string, payload: any) {
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+  },
+
+  async adminUpdateDeveloperStatus(token: string, id: string, status: "draft" | "published" | "archived") {
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      token,
+      body: { status },
+    });
+  },
+
+  async adminTransferDeveloperProjects(token: string, id: string, targetDeveloperId: string) {
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}/transfer`, {
+      method: "POST",
+      token,
+      body: { targetDeveloperId },
+    });
+  },
+
+  async adminDeleteDeveloper(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/developers/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
+  // -------------------------------------------------------------
+  // ADMIN EXCEL BULK IMPORT ENDPOINTS (PROTECTED)
+  // -------------------------------------------------------------
+
+  async adminDownloadImportTemplate(token: string) {
+    return apiFetch<any>("/api/v1/admin/projects/import/template", {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminBulkImportProjects(token: string, formData: FormData) {
+    return apiFetch<any>("/api/v1/admin/projects/import", {
+      method: "POST",
+      token,
+      body: formData,
+    });
+  },
 };
