@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { projectService } from "@/services/projectService";
-import { propertyService } from "@/services/propertyService";
+import { cityService } from "@/services/cityService";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SafeImage } from "@/components/SafeImage";
 import { notFound } from "next/navigation";
+import { siteConfig } from "@/config/site.config";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ const FALLBACK_IMG = "https://images.unsplash.com/photo-1570129477492-45c003edd2
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const [cityData, cityProjects] = await Promise.all([
-    propertyService.getCityById(id),
+    cityService.getCityBySlug(id),
     projectService.getProjectsByCity(id),
   ]);
 
@@ -35,16 +36,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     cityData?.seo?.description ||
     cityData?.shortDescription ||
     `Explore ${cityProjects.length}+ verified luxury residential projects in ${cityName}. Browse apartments, penthouses, and premium gated communities.`;
-  const ogImage = cityData?.seo?.ogImage || cityData?.image || FALLBACK_IMG;
+  const ogImage = cityData?.seo?.ogImage || cityData?.coverImage || cityData?.image || FALLBACK_IMG;
 
   return {
     title,
     description,
     alternates: { canonical: `/cities/${id}` },
     openGraph: {
-      title,
-      description,
+      title: cityData?.seo?.ogTitle || title,
+      description: cityData?.seo?.ogDescription || description,
+      url: `${siteConfig.url}/cities/${id}`,
       images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: cityData?.seo?.ogTitle || title,
+      description: cityData?.seo?.ogDescription || description,
+      images: [ogImage],
     },
   };
 }
@@ -54,7 +62,7 @@ export default async function CityDetailsPage({ params }: Props) {
 
   // Fetch both city meta info and real projects
   const [cityData, cityProjects] = await Promise.all([
-    propertyService.getCityById(id),
+    cityService.getCityBySlug(id),
     projectService.getProjectsByCity(id),
   ]);
 
@@ -146,7 +154,7 @@ export default async function CityDetailsPage({ params }: Props) {
           <div className="text-xs text-slate-500 flex items-center gap-2">
             <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
-            <Link href="/search" className="hover:underline">Properties</Link>
+            <Link href="/cities" className="hover:underline">Cities</Link>
             <span>/</span>
             <span className="text-[#124446] font-bold">{cityName}</span>
           </div>
@@ -154,7 +162,7 @@ export default async function CityDetailsPage({ params }: Props) {
           {/* Highlights & Localities Chips */}
           {((cityData?.highlights && cityData.highlights.length > 0) ||
             (cityData?.localities && cityData.localities.length > 0)) && (
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
               {cityData.highlights && cityData.highlights.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold uppercase text-[#124446] tracking-wider">
@@ -200,19 +208,40 @@ export default async function CityDetailsPage({ params }: Props) {
               </p>
             </div>
           )}
+
+          {/* City Gallery */}
+          {cityData?.gallery && cityData.gallery.length > 0 && (
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              <h3 className="text-sm font-bold text-[#124446] uppercase tracking-wider">
+                Photo Gallery — {cityName}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {cityData.gallery.map((imgUrl, idx) => (
+                  <div key={idx} className="h-36 rounded-xl overflow-hidden bg-slate-100">
+                    <SafeImage
+                      src={imgUrl}
+                      alt={`${cityName} photo ${idx + 1}`}
+                      fallbackSrc={FALLBACK_IMG}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Projects Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex items-center justify-between border-b pb-4">
             <h2 className="text-xl sm:text-2xl font-black text-[#124446]">
-              Verified Developments in {cityName}
+              Verified Developments in {cityName} ({cityProjects.length})
             </h2>
             <Link
               href={`/search?city=${encodeURIComponent(cityName)}`}
               className="text-xs font-bold text-[#D3A479] hover:underline"
             >
-              Filter & View All →
+              Filter &amp; View All →
             </Link>
           </div>
 
@@ -238,11 +267,15 @@ export default async function CityDetailsPage({ params }: Props) {
                     {proj.startingPrice}
                   </div>
                 </div>
+
                 <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-[#8693AB]">
-                      {proj.categories?.[0] || "Luxury"} · {proj.microMarket || proj.city}
-                    </span>
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase text-[#8693AB]">
+                      <span>{proj.categories?.[0] || "Luxury"}</span>
+                      {proj.developer && (
+                        <span className="text-[#124446]">{proj.developer}</span>
+                      )}
+                    </div>
                     <h3 className="font-bold text-slate-900 text-base group-hover:text-[#124446] transition-colors mt-0.5">
                       {proj.title}
                     </h3>
@@ -265,7 +298,7 @@ export default async function CityDetailsPage({ params }: Props) {
                       href={`/properties/${proj.slug}`}
                       className="flex-1 py-2 rounded-xl bg-[#124446] hover:bg-[#0d3335] text-white text-xs font-bold text-center block transition-colors"
                     >
-                      View Project →
+                      View Project Details →
                     </Link>
                   </div>
                 </div>

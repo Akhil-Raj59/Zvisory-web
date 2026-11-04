@@ -400,6 +400,38 @@ export const backendApi = {
   },
 
   // -------------------------------------------------------------
+  // PUBLIC DEVELOPER ENDPOINTS
+  // -------------------------------------------------------------
+
+  async getPublicDevelopers(params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/developers${qs ? `?${qs}` : ""}`, { method: "GET" });
+  },
+
+  async getDeveloperBySlug(slug: string) {
+    return apiFetch<any>(`/api/v1/developers/${encodeURIComponent(slug)}`, { method: "GET" });
+  },
+
+  async getDeveloperProjects(slug: string, params: Record<string, string | number | boolean | undefined> = {}) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "" && v !== "All") {
+        searchParams.append(k, String(v));
+      }
+    });
+    const qs = searchParams.toString();
+    return apiFetch<any>(`/api/v1/developers/${encodeURIComponent(slug)}/projects${qs ? `?${qs}` : ""}`, {
+      method: "GET",
+    });
+  },
+
+  // -------------------------------------------------------------
   // ADMIN CITY MANAGEMENT ENDPOINTS (PROTECTED)
   // -------------------------------------------------------------
 

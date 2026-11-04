@@ -15,6 +15,15 @@ interface Props {
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80";
 
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-");
+}
+
 function SafeImage({ src, alt, className }: { src?: string; alt: string; className?: string }) {
   const [errored, setErrored] = useState(false);
   const imgSrc = !src || errored ? FALLBACK_IMG : src;
@@ -39,13 +48,16 @@ export default function PropertyDetailClient({ project, similar }: Props) {
   const emiResult = loanService.calculateEmi(loanAmount, interestRate, tenure);
   const maxLoan = project.priceRaw > 0 ? project.priceRaw : 100000000;
 
+  const developerSlug = slugify(project.developer);
+  const citySlug = slugify(project.city);
+
   const navTabs = [
-    { key: "overview", label: "Overview" },
-    { key: "amenities", label: "Amenities" },
-    { key: "floorplans", label: "Floor Plans" },
-    { key: "gallery", label: "Gallery" },
-    { key: "location", label: "Location" },
-    ...(project.faqs.length > 0 ? [{ key: "faqs", label: "FAQs" }] : []),
+    { key: "overview", label: "Overview & Specs" },
+    { key: "amenities", label: `Amenities (${project.amenities.items.length})` },
+    { key: "floorplans", label: `Floor Plans (${project.floorPlans.plans.length})` },
+    { key: "gallery", label: `Gallery (${project.gallery.images.length})` },
+    { key: "location", label: "Location & Proximity" },
+    ...(project.faqs.length > 0 ? [{ key: "faqs", label: `FAQs (${project.faqs.length})` }] : []),
   ];
 
   return (
@@ -59,7 +71,9 @@ export default function PropertyDetailClient({ project, similar }: Props) {
           <span>/</span>
           <Link href="/search" className="hover:underline">Properties</Link>
           <span>/</span>
-          <Link href={`/search?city=${project.city}`} className="hover:underline">{project.city}</Link>
+          <Link href={`/cities/${citySlug}`} className="hover:underline">{project.city}</Link>
+          <span>/</span>
+          <Link href={`/developers/${developerSlug}`} className="hover:underline">{project.developer}</Link>
           <span>/</span>
           <span className="text-[#124446] font-bold">{project.title}</span>
         </div>
@@ -67,8 +81,8 @@ export default function PropertyDetailClient({ project, similar }: Props) {
         {/* Hero Section */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b pb-4">
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="flex-1 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {project.categories.map((cat) => (
                   <span
                     key={cat}
@@ -82,28 +96,48 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                     {project.status}
                   </span>
                 )}
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">{project.title}</h1>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                📍 {project.location}
-              </p>
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-600">
-                {project.unitType.length > 0 && (
-                  <span>🏠 {project.unitType.join(", ")}</span>
+                {project.featured && (
+                  <span className="px-3 py-0.5 rounded-full bg-[#D3A479] text-[#124446] text-[10px] font-extrabold uppercase">
+                    Featured
+                  </span>
                 )}
-                {project.unitSizes && <span>📐 {project.unitSizes}</span>}
-                {project.developer && <span>🏗️ {project.developer}</span>}
               </div>
+
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">{project.title}</h1>
+
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+                <span>📍 {project.location}</span>
+                <span>•</span>
+                <Link
+                  href={`/cities/${citySlug}`}
+                  className="text-emerald-700 font-bold hover:underline"
+                >
+                  City: {project.city}
+                </Link>
+                <span>•</span>
+                <Link
+                  href={`/developers/${developerSlug}`}
+                  className="text-[#124446] font-bold hover:underline"
+                >
+                  Developer: {project.developer} ↗
+                </Link>
+              </div>
+
+              {project.reraNumber && (
+                <p className="text-[11px] text-slate-500 font-mono">
+                  RERA: <span className="font-bold text-slate-700">{project.reraNumber}</span>
+                </p>
+              )}
             </div>
 
             <div className="text-left md:text-right space-y-2 shrink-0">
               <div className="text-2xl sm:text-3xl font-black text-[#124446]">{project.startingPrice}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Starting Price</p>
+              <p className="text-[10px] text-slate-400 font-medium">Starting Investment</p>
               <button
                 onClick={() => setContactOpen(true)}
                 className="px-6 py-3 rounded-xl bg-[#D3A479] hover:bg-[#b88c63] text-[#124446] font-bold text-xs uppercase tracking-wider transition-colors shadow-md"
               >
-                Request Callback & Site Visit
+                Request Callback &amp; Site Visit
               </button>
             </div>
           </div>
@@ -118,7 +152,10 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                 <div key={i} className={`${i === 1 ? "relative group" : ""} rounded-2xl overflow-hidden bg-slate-100 h-1/2`}>
                   <SafeImage src={img} alt={`${project.title} ${i + 1}`} className="w-full h-full object-cover" />
                   {i === 1 && project.gallery.images.length > 2 && (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-xs font-bold">
+                    <div
+                      onClick={() => setActiveTab("gallery")}
+                      className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-xs font-bold cursor-pointer"
+                    >
                       + {project.gallery.images.length - 2} Photos
                     </div>
                   )}
@@ -127,17 +164,17 @@ export default function PropertyDetailClient({ project, similar }: Props) {
             </div>
           </div>
 
-          {/* Specs Bar */}
+          {/* Quick Specs Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center text-xs">
             {project.unitType.length > 0 && (
               <div>
-                <span className="block text-slate-400 font-bold uppercase text-[10px]">Configurations</span>
+                <span className="block text-slate-400 font-bold uppercase text-[10px]">Typology</span>
                 <span className="font-bold text-slate-800 text-sm">{project.unitType.join(", ")}</span>
               </div>
             )}
             {project.unitSizes && (
               <div>
-                <span className="block text-slate-400 font-bold uppercase text-[10px]">Super Area</span>
+                <span className="block text-slate-400 font-bold uppercase text-[10px]">Unit Sizes</span>
                 <span className="font-bold text-slate-800 text-sm">{project.unitSizes}</span>
               </div>
             )}
@@ -147,62 +184,50 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                 <span className="font-bold text-slate-800 text-sm">{project.possession || project.status}</span>
               </div>
             )}
-            {project.reraNumber && (
+            {project.landArea && (
               <div>
-                <span className="block text-slate-400 font-bold uppercase text-[10px]">RERA</span>
-                <span className="font-bold text-[#124446] text-[10px] break-all">{project.reraNumber}</span>
+                <span className="block text-slate-400 font-bold uppercase text-[10px]">Land Parcel</span>
+                <span className="font-bold text-slate-800 text-sm">{project.landArea}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Detail Specs */}
-        {project.detailSpecs.length > 0 && (
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <h2 className="text-lg font-bold text-[#124446] mb-4">Project Details</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {project.detailSpecs.map((spec, i) => (
-                <div key={i} className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-                  <div className="text-[10px] font-bold uppercase text-slate-400">{spec.label}</div>
-                  <div className="text-sm font-bold text-slate-900">{spec.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Tab Navigation */}
-        <div className="sticky top-16 z-20 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
-          <div className="flex items-center gap-1 p-2 min-w-max">
-            {navTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? "bg-[#124446] text-white shadow"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200">
+          {navTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap cursor-pointer ${
+                activeTab === tab.key
+                  ? "bg-[#124446] text-white shadow-sm"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Main Content Grid */}
+        {/* Tab Content & Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-
+          <div className="lg:col-span-2 space-y-6">
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <>
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                  <h2 className="text-xl font-bold text-[#124446]">{project.overview.heading}</h2>
-                  <h3 className="text-base font-semibold text-slate-700">{project.overview.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{project.overview.description}</p>
+                  <div>
+                    <h2 className="text-xl font-bold text-[#124446]">{project.overview.heading}</h2>
+                    {project.overview.title && (
+                      <h3 className="text-base font-semibold text-slate-700 mt-1">{project.overview.title}</h3>
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {project.overview.description}
+                  </p>
                   {project.overview.images.length > 0 && (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 pt-2">
                       {project.overview.images.slice(0, 2).map((img, i) => (
                         <div key={i} className="rounded-xl overflow-hidden h-40 bg-slate-100">
                           <SafeImage src={img} alt={`Overview ${i + 1}`} className="w-full h-full object-cover" />
@@ -212,21 +237,49 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                   )}
                 </div>
 
+                {/* Key Specifications (detailSpecs) */}
+                {project.detailSpecs && project.detailSpecs.length > 0 && (
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 className="text-lg font-bold text-[#124446]">Project Specifications</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {project.detailSpecs.map((spec, i) => (
+                        <div key={i} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                          <span className="text-[10px] font-bold uppercase text-slate-400 block">{spec.label}</span>
+                          <span className="font-bold text-sm text-slate-900 mt-0.5 block">{spec.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {project.detailSpecsImage && (
+                      <div className="pt-2">
+                        <span className="text-xs font-bold uppercase text-slate-400 block mb-2">Master Layout &amp; Elevation</span>
+                        <div className="rounded-2xl overflow-hidden bg-slate-100 max-h-96">
+                          <SafeImage src={project.detailSpecsImage} alt="Master Specifications Layout" className="w-full h-full object-cover" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Info Sections */}
                 {project.infoSections.map((sec, i) => (
                   <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
                     <div className="text-xs font-bold uppercase text-[#D3A479] tracking-wider">{sec.heading}</div>
                     {sec.title && <h3 className="text-lg font-bold text-slate-900">{sec.title}</h3>}
                     {sec.description && (
-                      <p className="text-sm text-slate-600 leading-relaxed">{sec.description}</p>
+                      <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{sec.description}</p>
+                    )}
+                    {sec.image && (
+                      <div className="rounded-2xl overflow-hidden h-48 bg-slate-100 mt-3">
+                        <SafeImage src={sec.image} alt={sec.title || sec.heading} className="w-full h-full object-cover" />
+                      </div>
                     )}
                   </div>
                 ))}
 
-                {/* Offers */}
+                {/* Special Offers */}
                 {project.offers.length > 0 && (
                   <div className="bg-gradient-to-r from-[#124446] to-[#1a5c5f] p-6 rounded-3xl text-white space-y-3">
-                    <h3 className="text-lg font-bold">Special Offers</h3>
+                    <h3 className="text-lg font-bold text-[#D3A479]">Exclusive Offers &amp; Incentives</h3>
                     <div className="space-y-2">
                       {project.offers.map((offer, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
@@ -252,9 +305,9 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                     {project.amenities.items.map((item, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 p-3 rounded-xl bg-[#BDD4E7]/20 border border-[#BDD4E7]/40 text-xs font-semibold text-slate-800"
+                        className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-[#BDD4E7]/20 border border-[#BDD4E7]/40 text-xs font-semibold text-slate-800"
                       >
-                        <span className="text-[#D3A479] font-black">✓</span>
+                        <span className="text-[#124446] font-black text-sm">✓</span>
                         <span>{item.name}</span>
                       </div>
                     ))}
@@ -280,9 +333,9 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                         <button
                           key={i}
                           onClick={() => setActivePlan(i)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                             activePlan === i
-                              ? "bg-[#124446] text-white"
+                              ? "bg-[#124446] text-white shadow-sm"
                               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                           }`}
                         >
@@ -292,23 +345,33 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                     </div>
                     {/* Active plan details */}
                     {project.floorPlans.plans[activePlan] && (
-                      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                           <div>
                             <span className="text-xs font-bold uppercase text-slate-400 block">Configuration</span>
                             <span className="font-bold text-slate-900">{project.floorPlans.plans[activePlan].name}</span>
                           </div>
                           <div>
-                            <span className="text-xs font-bold uppercase text-slate-400 block">Area</span>
+                            <span className="text-xs font-bold uppercase text-slate-400 block">Super Area</span>
                             <span className="font-bold text-slate-900">{project.floorPlans.plans[activePlan].value}</span>
                           </div>
                           {project.floorPlans.plans[activePlan].basePrice && (
                             <div>
-                              <span className="text-xs font-bold uppercase text-slate-400 block">Base Price</span>
+                              <span className="text-xs font-bold uppercase text-slate-400 block">Starting Base Price</span>
                               <span className="font-bold text-[#124446]">{project.floorPlans.plans[activePlan].basePrice}</span>
                             </div>
                           )}
                         </div>
+
+                        {project.floorPlans.plans[activePlan].image && (
+                          <div className="rounded-xl overflow-hidden bg-white border border-slate-200 p-2 max-h-96 flex items-center justify-center">
+                            <SafeImage
+                              src={project.floorPlans.plans[activePlan].image}
+                              alt={project.floorPlans.plans[activePlan].name}
+                              className="max-h-80 w-auto object-contain"
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                   </>
@@ -329,9 +392,9 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                   )}
                 </div>
                 {/* Main gallery viewer */}
-                <div className="rounded-2xl overflow-hidden h-72 bg-slate-100">
+                <div className="rounded-2xl overflow-hidden h-80 sm:h-96 bg-slate-100">
                   <SafeImage
-                    src={project.gallery.images[galleryIdx]}
+                    src={project.gallery.images[galleryIdx] || project.image}
                     alt={`${project.title} gallery ${galleryIdx + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -342,8 +405,8 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                     <button
                       key={i}
                       onClick={() => setGalleryIdx(i)}
-                      className={`shrink-0 h-16 w-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        i === galleryIdx ? "border-[#124446]" : "border-transparent"
+                      className={`shrink-0 h-16 w-24 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                        i === galleryIdx ? "border-[#124446] ring-2 ring-[#124446]/20" : "border-transparent opacity-70 hover:opacity-100"
                       }`}
                     >
                       <SafeImage src={img} alt={`thumb ${i}`} className="w-full h-full object-cover" />
@@ -368,7 +431,7 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                           <h4 className="text-sm font-bold text-[#124446] mb-2">📌 {cat.category}</h4>
                           <ul className="space-y-1">
                             {cat.items.map((item, j) => (
-                              <li key={j} className="text-xs text-slate-600 flex items-start gap-1">
+                              <li key={j} className="text-xs text-slate-600 flex items-start gap-1.5">
                                 <span className="text-[#D3A479] mt-0.5">•</span>
                                 <span>{item}</span>
                               </li>
@@ -385,7 +448,7 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                   <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
                     <h3 className="text-lg font-bold text-[#124446]">{project.contact.heading}</h3>
                     <p className="text-sm text-slate-500">{project.contact.title}</p>
-                    <div className="rounded-2xl overflow-hidden h-64 bg-slate-100">
+                    <div className="rounded-2xl overflow-hidden h-72 bg-slate-100">
                       <iframe
                         src={project.contact.locationMapUrl}
                         className="w-full h-full border-0"
@@ -406,13 +469,13 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                 <h2 className="text-xl font-bold text-[#124446]">Frequently Asked Questions</h2>
                 <div className="space-y-2">
                   {project.faqs.map((faq, i) => (
-                    <div key={i} className="border border-slate-100 rounded-xl overflow-hidden">
+                    <div key={i} className="border border-slate-100 rounded-2xl overflow-hidden">
                       <button
                         onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                        className="w-full text-left p-4 font-semibold text-sm text-slate-900 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                        className="w-full text-left p-4 font-semibold text-sm text-slate-900 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer"
                       >
                         <span>{faq.question}</span>
-                        <span className="text-[#124446] font-bold ml-2">{activeFaq === i ? "−" : "+"}</span>
+                        <span className="text-[#124446] font-bold ml-2 text-base">{activeFaq === i ? "−" : "+"}</span>
                       </button>
                       {activeFaq === i && (
                         <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
@@ -425,12 +488,12 @@ export default function PropertyDetailClient({ project, similar }: Props) {
               </div>
             )}
 
-            {/* EMI Calculator - always visible at bottom of content */}
+            {/* EMI Calculator */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b pb-3">
                 <div>
                   <h3 className="text-xl font-bold text-[#124446]">Home Loan EMI Calculator</h3>
-                  <p className="text-xs text-slate-500">Estimate your monthly payment</p>
+                  <p className="text-xs text-slate-500">Estimate your monthly payment for {project.title}</p>
                 </div>
                 <Link href="/home-loan" className="text-xs font-bold text-[#D3A479] hover:underline">
                   Full Loan Advisor →
@@ -508,12 +571,12 @@ export default function PropertyDetailClient({ project, similar }: Props) {
             </div>
           </div>
 
-          {/* Right Sidebar */}
+          {/* Right Sticky Sidebar */}
           <div className="space-y-6">
-            {/* Enquiry Form - Sticky */}
+            {/* Enquiry Form */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 sticky top-24">
               <h3 className="text-lg font-bold text-slate-900">Enquire About This Property</h3>
-              <p className="text-xs text-slate-500">Get official pricing, floor plans & schedule a site visit.</p>
+              <p className="text-xs text-slate-500">Get official pricing, floor plans &amp; schedule a private site visit.</p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -540,11 +603,35 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                 />
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-[#124446] hover:bg-[#0d3335] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md"
+                  className="w-full py-3 rounded-xl bg-[#124446] hover:bg-[#0d3335] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md cursor-pointer"
                 >
-                  Download Brochure & Price Sheet
+                  Download Brochure &amp; Price Sheet
                 </button>
               </form>
+
+              {/* Direct Advisor Contact */}
+              {(project.contact?.phone || project.contact?.email) && (
+                <div className="pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
+                  {project.contact?.phone && (
+                    <a
+                      href={`tel:${project.contact.phone.replace(/\s+/g, "")}`}
+                      className="flex items-center gap-2 hover:text-[#124446] transition-colors"
+                    >
+                      <span>📞</span>
+                      <span>{project.contact.phone}</span>
+                    </a>
+                  )}
+                  {project.contact?.email && (
+                    <a
+                      href={`mailto:${project.contact.email}`}
+                      className="flex items-center gap-2 hover:text-[#124446] transition-colors truncate"
+                    >
+                      <span>✉️</span>
+                      <span>{project.contact.email}</span>
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Documents */}
@@ -561,8 +648,8 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                       className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#124446] hover:bg-[#BDD4E7]/10 transition-all text-xs font-semibold text-slate-700"
                     >
                       <span className="text-[#D3A479]">📄</span>
-                      <span className="flex-1">{doc.name}</span>
-                      <span className="text-[10px] uppercase text-slate-400">{doc.type}</span>
+                      <span className="flex-1 truncate">{doc.name}</span>
+                      <span className="text-[10px] uppercase text-slate-400 shrink-0">{doc.type}</span>
                     </a>
                   ))}
                 </div>
@@ -571,12 +658,28 @@ export default function PropertyDetailClient({ project, similar }: Props) {
 
             {/* Quick Info Summary */}
             <div className="bg-gradient-to-br from-[#124446]/5 to-[#BDD4E7]/20 p-5 rounded-3xl border border-[#124446]/10 space-y-3">
-              <h4 className="text-sm font-bold text-[#124446]">Quick Summary</h4>
+              <h4 className="text-sm font-bold text-[#124446]">Development Profile</h4>
               <div className="space-y-2 text-xs">
                 {project.developer && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-slate-500">Developer</span>
-                    <span className="font-bold text-slate-900">{project.developer}</span>
+                    <Link
+                      href={`/developers/${developerSlug}`}
+                      className="font-bold text-[#124446] hover:underline"
+                    >
+                      {project.developer} ↗
+                    </Link>
+                  </div>
+                )}
+                {project.city && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">City Corridor</span>
+                    <Link
+                      href={`/cities/${citySlug}`}
+                      className="font-bold text-[#124446] hover:underline"
+                    >
+                      {project.city} ↗
+                    </Link>
                   </div>
                 )}
                 {project.propertyType && (
@@ -610,8 +713,8 @@ export default function PropertyDetailClient({ project, similar }: Props) {
 
         {/* Similar Projects */}
         {similar.length > 0 && (
-          <div className="space-y-4 pt-6 border-t">
-            <h3 className="text-xl font-bold text-[#124446]">Similar Projects in {project.city}</h3>
+          <div className="space-y-4 pt-6 border-t border-slate-200">
+            <h3 className="text-xl font-bold text-[#124446]">Similar Developments in {project.city}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {similar.map((s) => (
                 <Link

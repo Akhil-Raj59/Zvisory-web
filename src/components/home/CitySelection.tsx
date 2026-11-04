@@ -5,18 +5,14 @@ import Link from "next/link";
 
 // Accepts both the mock City shape (priceRange) and the
 // live backend shape (startingPrice). The service returns startingPrice.
-export interface CityCard {
+import type { City } from "@/models/city";
+
+export type CityCard = Partial<City> & {
   id: string;
   name: string;
-  slug?: string;
-  projectCount: number;
-  image: string;
-  description: string;
-  startingPrice?: string;
-  priceRange?: string; // legacy mock field
-}
+};
 
-export function CitySelection({ cities }: { cities: CityCard[] }) {
+export function CitySelection({ cities }: { cities: (City | CityCard)[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function scroll(direction: "left" | "right") {
@@ -42,22 +38,30 @@ export function CitySelection({ cities }: { cities: CityCard[] }) {
             </p>
           </div>
 
-          {/* Carousel Arrows */}
-          <div className="hidden sm:flex items-center gap-2">
-            <button
-              onClick={() => scroll("left")}
-              className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-slate-700 transition-colors shadow-xs cursor-pointer"
-              aria-label="Scroll left"
+          {/* Carousel Controls & View All */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/cities"
+              className="text-xs font-bold text-[#124446] hover:text-[#D3A479] transition-colors"
             >
-              ←
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-slate-700 transition-colors shadow-xs cursor-pointer"
-              aria-label="Scroll right"
-            >
-              →
-            </button>
+              View All Cities →
+            </Link>
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => scroll("left")}
+                className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-slate-700 transition-colors shadow-xs cursor-pointer"
+                aria-label="Scroll left"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-slate-700 transition-colors shadow-xs cursor-pointer"
+                aria-label="Scroll right"
+              >
+                →
+              </button>
+            </div>
           </div>
         </div>
 
@@ -73,14 +77,14 @@ export function CitySelection({ cities }: { cities: CityCard[] }) {
             >
               <div className="relative h-44 w-full overflow-hidden bg-slate-200">
                 <img
-                  src={city.image}
+                  src={city.image || city.coverImage || "/placeholder-city.jpg"}
                   alt={city.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#D3A479] text-[#124446]">
-                    {city.projectCount} Projects
+                    {city.projectCount ?? city.publishedProjectsCount ?? 0} Projects
                   </span>
                 </div>
               </div>

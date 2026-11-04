@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ContactModal } from "./ContactModal";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { headerNavigation } from "@/config/navigation.config";
 
 export function Header({
   user: propUser,
@@ -54,6 +55,18 @@ export function Header({
 
           {/* Center/Right Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
+            <Link href="/search" className="hover:text-[#D3A479] transition-colors">
+              Properties
+            </Link>
+
+            <Link href="/cities" className="hover:text-[#D3A479] transition-colors">
+              Cities
+            </Link>
+
+            <Link href="/developers" className="hover:text-[#D3A479] transition-colors">
+              Developers
+            </Link>
+
             {/* Property Type Dropdown */}
             <div className="relative" onMouseLeave={() => setPropertyTypeOpen(false)}>
               <button
@@ -293,6 +306,20 @@ export function Header({
               className="block px-3 py-2 rounded-lg hover:bg-white/10 text-base font-medium"
             >
               Explore Properties
+            </Link>
+            <Link
+              href="/cities"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg hover:bg-white/10 text-base font-medium"
+            >
+              Cities Directory
+            </Link>
+            <Link
+              href="/developers"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg hover:bg-white/10 text-base font-medium"
+            >
+              Top Developers
             </Link>
             <Link
               href="/home-loan"

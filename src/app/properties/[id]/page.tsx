@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { projectService } from "@/services/projectService";
 import PropertyDetailClient from "./PropertyDetailClient";
+import { siteConfig } from "@/config/site.config";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -15,25 +16,48 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const project = await projectService.getProjectBySlug(id);
-  if (!project) return { title: "Property Not Found | Zvisory" };
+  if (!project || (project.statusVisibility && project.statusVisibility !== "published")) {
+    return {
+      title: "Property Not Found | Zvisory",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const title =
+    project.seo?.title ||
+    project.seo?.ogTitle ||
+    `${project.title} by ${project.developer} in ${project.city} | Zvisory`;
+  const description =
+    project.seo?.description ||
+    project.seo?.ogDescription ||
+    project.overview?.description ||
+    `Explore ${project.title} luxury residential development by ${project.developer} in ${project.location || project.city}. Pricing, floor plans, and amenities.`;
+  const ogImage =
+    project.seo?.ogImage ||
+    project.cardBanner ||
+    project.bannerUrl ||
+    project.image ||
+    siteConfig.ogImage;
 
   return {
-    title: project.seo.ogTitle || `${project.title} | Zvisory`,
-    description: project.seo.ogDescription || project.overview.description,
+    title,
+    description,
+    keywords: project.seo?.keywords || project.keywords?.join(", "),
     alternates: {
       canonical: `/properties/${project.slug}`,
     },
     openGraph: {
-      title: project.seo.ogTitle || project.title,
-      description: project.seo.ogDescription || project.overview.description,
-      images: project.seo.ogImage ? [{ url: project.seo.ogImage }] : [],
+      title: project.seo?.ogTitle || title,
+      description: project.seo?.ogDescription || description,
+      url: `${siteConfig.url}/properties/${project.slug}`,
+      images: ogImage ? [{ url: ogImage }] : [],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: project.seo.ogTitle || project.title,
-      description: project.seo.ogDescription,
-      images: project.seo.ogImage ? [project.seo.ogImage] : [],
+      title: project.seo?.ogTitle || title,
+      description: project.seo?.ogDescription || description,
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
@@ -44,6 +68,11 @@ export default async function PropertyDetailPage({ params }: Props) {
 
   if (!project) notFound();
 
+  // Respect visibility: only published projects are publicly accessible
+  if (project.statusVisibility && project.statusVisibility !== "published") {
+    notFound();
+  }
+
   const similar = await projectService.getSimilarProjects(id, 3);
 
   // JSON-LD Structured Data
@@ -51,13 +80,13 @@ export default async function PropertyDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: project.title,
-    description: project.overview.description,
-    url: `https://zvisory.com/properties/${project.slug}`,
+    description: project.overview?.description || project.title,
+    url: `${siteConfig.url}/properties/${project.slug}`,
     image: project.image,
     address: {
       "@type": "PostalAddress",
       addressLocality: project.city,
-      addressRegion: project.microMarket,
+      addressRegion: project.microMarket || undefined,
       addressCountry: "IN",
     },
     ...(project.priceRaw > 0 && {

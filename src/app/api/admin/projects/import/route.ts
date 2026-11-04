@@ -47,10 +47,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
-
-// Disable Next.js body parsing to allow FormData passthrough
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

@@ -41,6 +41,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/cities" className="hover:text-white transition-colors">
+                  Explore Cities
+                </Link>
+              </li>
+              <li>
+                <Link href="/developers" className="hover:text-white transition-colors">
+                  Top Developers
+                </Link>
+              </li>
+              <li>
                 <Link href="/home-loan" className="hover:text-white transition-colors">
                   Home Loan EMI Calculator
                 </Link>

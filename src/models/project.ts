@@ -26,6 +26,7 @@ export interface FloorPlanItem {
   name: string;
   value: string;
   basePrice?: string;
+  image?: string;
 }
 
 export interface ProjectFloorPlansSection {
@@ -72,6 +73,9 @@ export interface ProjectDocument {
 }
 
 export interface ProjectSEO {
+  title?: string;
+  description?: string;
+  keywords?: string;
   ogTitle: string;
   ogDescription: string;
   ogImage: string;
@@ -83,9 +87,20 @@ export interface ProjectContact {
   heading: string;
   title: string;
   locationMapUrl?: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface CustomSection {
+  sectionId?: string;
+  heading?: string;
+  title?: string;
+  content?: string;
+  images?: string[];
 }
 
 export interface Project {
+  _id?: string;
   id: string; // slug identifier
   slug: string;
   title: string;
@@ -97,22 +112,31 @@ export interface Project {
   microMarket: string;
   startingPrice: string;
   priceRaw: number; // numeric value in INR for sorting & filtering
+  priceMaxNumeric?: number | null;
   unitType: string[]; // e.g. ["3 BHK", "4 BHK"]
   unitSizes: string;
   landArea: string;
   totalUnits: string;
   propertyType: string;
-  status: string; // "Ready To Move-In", "Under Construction", "New Launch", etc.
+  status: string; // launch status: "Ready To Move-In", "Under Construction", "New Launch", etc.
+  statusVisibility?: "draft" | "published" | "archived";
+  featured?: boolean;
+  isOnHomeCarousel?: boolean;
+  isFlagshipProject?: boolean;
   possession: string;
+  possessionDate?: string | null;
   elevation: string;
   paymentPlan: string;
   reraNumber: string;
   categories: string[];
   bannerUrl: string;
+  cardBanner?: string;
   image: string; // main image with fallback strategy
   
-  // Structured Sections
+  // Structured Sections (from ProjectDetails)
   detailSpecs: ProjectDetailSpec[];
+  detailSpecsImage?: string;
+  bannerStatLabels?: string[];
   overview: ProjectOverview;
   amenities: ProjectAmenitiesSection;
   floorPlans: ProjectFloorPlansSection;
@@ -123,6 +147,7 @@ export interface Project {
   documents: ProjectDocument[];
   faqs: ProjectFAQ[];
   contact: ProjectContact;
+  customSections?: CustomSection[];
   seo: ProjectSEO;
   
   // Original Raw Data Access

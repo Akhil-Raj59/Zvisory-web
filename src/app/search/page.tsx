@@ -33,13 +33,16 @@ function SearchContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
-  // Filters
-  const [query, setQuery] = useState(searchParams.get("q") || "");
+  // Filters initialized from URL query parameters
+  const [query, setQuery] = useState(searchParams.get("q") || searchParams.get("search") || "");
   const [city, setCity] = useState(searchParams.get("city") || "All");
   const [category, setCategory] = useState(searchParams.get("category") || "All");
-  const [developer, setDeveloper] = useState("All");
-  const [unitConfig, setUnitConfig] = useState("All");
-  const [budget, setBudget] = useState("All");
+  const [developer, setDeveloper] = useState(searchParams.get("developer") || "All");
+  const [propertyType, setPropertyType] = useState(
+    searchParams.get("propertyType") || searchParams.get("type") || "All"
+  );
+  const [unitConfig, setUnitConfig] = useState(searchParams.get("unitConfig") || "All");
+  const [budget, setBudget] = useState(searchParams.get("budget") || "All");
   const [sortBy, setSortBy] = useState("default");
 
   // Compare state (up to 3 projects)
@@ -74,6 +77,7 @@ function SearchContent() {
             city,
             category,
             developer,
+            propertyType,
             unitConfig,
             budget,
             page,
@@ -91,7 +95,7 @@ function SearchContent() {
       }
     }
     fetchProjects();
-  }, [query, city, category, developer, unitConfig, budget, sortBy, page]);
+  }, [query, city, category, developer, propertyType, unitConfig, budget, sortBy, page]);
 
   const comparedProjects = useMemo(
     () => filteredProjects.filter((p) => selectedForCompare.includes(p.slug)),
@@ -115,12 +119,14 @@ function SearchContent() {
     setCity("All");
     setCategory("All");
     setDeveloper("All");
+    setPropertyType("All");
     setUnitConfig("All");
     setBudget("All");
     setSortBy("default");
+    setPage(1);
   }
 
-  const activeFilterCount = [city, category, developer, unitConfig, budget].filter(
+  const activeFilterCount = [city, category, developer, propertyType, unitConfig, budget].filter(
     (v) => v !== "All"
   ).length + (query.trim() ? 1 : 0);
 
@@ -504,6 +510,13 @@ function SearchContent() {
                 onChange={setCategory}
                 options={filterOptions.categories}
                 allLabel="All Categories"
+              />
+              <FilterSelect
+                label="Property Type"
+                value={propertyType}
+                onChange={setPropertyType}
+                options={filterOptions.propertyTypes}
+                allLabel="All Property Types"
               />
               <FilterSelect
                 label="Developer"

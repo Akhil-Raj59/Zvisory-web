@@ -39,6 +39,7 @@ export function mapDbProjectToClientProject(doc: any): Project {
   const d = doc.details || {};
 
   return {
+    _id: doc._id,
     id: doc.slug,
     slug: doc.slug,
     title: doc.title,
@@ -50,22 +51,33 @@ export function mapDbProjectToClientProject(doc: any): Project {
     microMarket: doc.microMarket || "",
     startingPrice: doc.startingPrice || "Price On Request",
     priceRaw: typeof doc.priceNumeric === "number" ? doc.priceNumeric : 0,
+    priceMaxNumeric: typeof doc.priceMaxNumeric === "number" ? doc.priceMaxNumeric : null,
     unitType: doc.unitConfigurations?.length > 0 ? doc.unitConfigurations : ["3 BHK", "4 BHK"],
     unitSizes: doc.unitSizes || "Custom Layouts",
     landArea: doc.landArea || "",
     totalUnits: doc.totalUnits || "",
     propertyType: doc.propertyType || "Apartments",
     status: doc.launchStatus || "Under Construction",
+    statusVisibility: doc.status || "published",
+    featured: Boolean(doc.featured),
+    isOnHomeCarousel: Boolean(doc.isOnHomeCarousel),
+    isFlagshipProject: Boolean(doc.isFlagshipProject),
     possession: doc.possessionText || "",
+    possessionDate: doc.possessionDate ? String(doc.possessionDate) : null,
     elevation: doc.elevation || "",
     paymentPlan: doc.paymentPlan || "",
     reraNumber: doc.reraNumber || "",
     categories: doc.categories?.length > 0 ? doc.categories : ["Luxury"],
     bannerUrl: doc.bannerUrl || doc.cardBanner || "",
+    cardBanner: doc.cardBanner || "",
     image: doc.cardBanner || doc.bannerUrl || "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
     
-    // Structured sections
-    detailSpecs: d.detailSpecs || [],
+    // Structured sections (ProjectDetails)
+    detailSpecs: Array.isArray(d.detailSpecs) ? d.detailSpecs : [],
+    detailSpecsImage: d.detailSpecsImage || "",
+    bannerStatLabels: Array.isArray(d.bannerStatLabels) && d.bannerStatLabels.length > 0
+      ? d.bannerStatLabels
+      : ["Unit Typology", "Starting Price", "Unit Size", "Location"],
     overview: d.overview || {
       heading: "Project Overview",
       title: doc.title,
@@ -77,10 +89,17 @@ export function mapDbProjectToClientProject(doc: any): Project {
       title: "Designed to meet the highest criteria",
       items: [],
     },
-    floorPlans: d.floorPlans || {
-      heading: "Floor Plans",
-      title: "Sophisticated and Spacious",
-      plans: [],
+    floorPlans: {
+      heading: d.floorPlans?.heading || "Floor Plans",
+      title: d.floorPlans?.title || "Sophisticated and Spacious",
+      plans: Array.isArray(d.floorPlans?.plans)
+        ? d.floorPlans.plans.map((p: any) => ({
+            name: p.name || "",
+            value: p.value || "",
+            basePrice: p.basePrice || "",
+            image: p.image || "",
+          }))
+        : [],
     },
     gallery: d.gallery || {
       heading: "Gallery",
@@ -93,16 +112,22 @@ export function mapDbProjectToClientProject(doc: any): Project {
       title: "Prime Connectivity",
       categories: [],
     },
-    infoSections: d.infoSections || [],
-    offers: d.offers || [],
-    documents: d.documents || [],
-    faqs: d.faqs || [],
-    contact: d.contact || {
-      heading: "Contact Us",
-      title: "Schedule a Visit",
-      locationMapUrl: "",
+    infoSections: Array.isArray(d.infoSections) ? d.infoSections : [],
+    offers: Array.isArray(d.offers) ? d.offers : [],
+    documents: Array.isArray(d.documents) ? d.documents : [],
+    faqs: Array.isArray(d.faqs) ? d.faqs : [],
+    contact: {
+      heading: d.contact?.heading || "Contact Us",
+      title: d.contact?.title || "Schedule a Visit",
+      locationMapUrl: d.contact?.locationMapUrl || "",
+      phone: d.contact?.phone || "+91 99999 99999",
+      email: d.contact?.email || "contactus@zvisory.com",
     },
+    customSections: Array.isArray(d.customSections) ? d.customSections : [],
     seo: {
+      title: doc.seo?.title || "",
+      description: doc.seo?.description || "",
+      keywords: doc.seo?.keywords || "",
       ogTitle: doc.seo?.ogTitle || doc.seo?.title || `${doc.title} | Zvisory`,
       ogDescription: doc.seo?.ogDescription || doc.seo?.description || doc.shortDescription || "",
       ogImage: doc.seo?.ogImage || doc.cardBanner || doc.bannerUrl || "",
@@ -277,6 +302,13 @@ export const projectService = {
    */
   async getProjectsByCity(city: string): Promise<Project[]> {
     return this.getAllProjects({ city });
+  },
+
+  /**
+   * Projects by developer
+   */
+  async getProjectsByDeveloper(developer: string): Promise<Project[]> {
+    return this.getAllProjects({ developer });
   },
 
   /**
