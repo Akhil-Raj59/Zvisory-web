@@ -605,4 +605,62 @@ export const backendApi = {
       body: formData,
     });
   },
+
+  // -------------------------------------------------------------
+  // LEAD MANAGEMENT ENDPOINTS (PUBLIC & ADMIN)
+  // -------------------------------------------------------------
+
+  async createLead(payload: Record<string, unknown>) {
+    return apiFetch<any>("/api/v1/leads", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  async adminGetLeads(token: string, params: Record<string, string | number | undefined> = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") {
+        query.set(key, String(value));
+      }
+    });
+    const queryString = query.toString();
+    const endpoint = queryString ? `/api/v1/admin/leads?${queryString}` : "/api/v1/admin/leads";
+    return apiFetch<any>(endpoint, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetLeadStats(token: string) {
+    return apiFetch<any>("/api/v1/admin/leads/stats", {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminGetLeadById(token: string, id: string) {
+    return apiFetch<any>(`/api/v1/admin/leads/${encodeURIComponent(id)}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  async adminUpdateLeadStatus(token: string, id: string, status: string, notes?: string) {
+    return apiFetch<any>(`/api/v1/admin/leads/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      token,
+      body: { status, notes },
+    });
+  },
+
+  async adminRetryLeadJob(token: string, id: string, jobId: string) {
+    return apiFetch<any>(
+      `/api/v1/admin/leads/${encodeURIComponent(id)}/retry-job/${encodeURIComponent(jobId)}`,
+      {
+        method: "POST",
+        token,
+      }
+    );
+  },
 };

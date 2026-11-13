@@ -71,6 +71,13 @@ export default async function AdminLayout({
                   Developers
                 </Link>
                 <Link
+                  href="/admin/leads"
+                  className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center gap-1.5"
+                >
+                  <span>Leads</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </Link>
+                <Link
                   href="/health-check"
                   className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >

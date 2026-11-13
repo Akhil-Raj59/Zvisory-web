@@ -7,6 +7,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ContactModal } from "@/components/layout/ContactModal";
 import { loanService } from "@/services/loanService";
+import { CountryCodeSelect } from "@/components/common/CountryCodeSelect";
+import { TurnstileWidget } from "@/components/common/TurnstileWidget";
+import { leadService } from "@/services/leadService";
 
 interface Props {
   project: Project;
@@ -44,6 +47,65 @@ export default function PropertyDetailClient({ project, similar }: Props) {
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlan, setActivePlan] = useState(0);
+
+  // Sidebar Lead Enquiry Form State
+  const [sidebarName, setSidebarName] = useState("");
+  const [sidebarCountryCode, setSidebarCountryCode] = useState("+91");
+  const [sidebarPhone, setSidebarPhone] = useState("");
+  const [sidebarEmail, setSidebarEmail] = useState("");
+  const [sidebarTurnstile, setSidebarTurnstile] = useState("");
+  const [sidebarLoading, setSidebarLoading] = useState(false);
+  const [sidebarSubmitted, setSidebarSubmitted] = useState(false);
+  const [sidebarError, setSidebarError] = useState<string | null>(null);
+
+  async function handleSidebarSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSidebarError(null);
+
+    const cleanPhone = sidebarPhone.replace(/[^0-9]/g, "");
+    if (cleanPhone.length < 6) {
+      setSidebarError("Please enter a valid phone number.");
+      return;
+    }
+    if (sidebarCountryCode === "+91" && cleanPhone.length !== 10) {
+      setSidebarError("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+
+    setSidebarLoading(true);
+
+    try {
+      await leadService.submitLead({
+        fullName: sidebarName,
+        email: sidebarEmail.trim(),
+        countryCode: sidebarCountryCode,
+        phone: cleanPhone,
+        message: `Enquired from property detail sidebar for ${project.title}. Requested brochure & price sheet.`,
+        formType: "property_sidebar",
+        formLocation: "property_detail_sidebar",
+        projectId: (project as any).id || (project as any)._id,
+        projectName: project.title,
+        projectSlug: project.slug,
+        city: project.city,
+        developer: project.developer,
+        projectUrl: typeof window !== "undefined" ? window.location.href : "",
+        turnstileToken: sidebarTurnstile,
+      });
+
+      setSidebarSubmitted(true);
+      setSidebarName("");
+      setSidebarPhone("");
+      setSidebarEmail("");
+      setTimeout(() => {
+        setSidebarSubmitted(false);
+      }, 6000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Submission failed. Please try again.";
+      setSidebarError(msg);
+    } finally {
+      setSidebarLoading(false);
+    }
+  }
 
   const emiResult = loanService.calculateEmi(loanAmount, interestRate, tenure);
   const maxLoan = project.priceRaw > 0 ? project.priceRaw : 100000000;
@@ -577,37 +639,73 @@ export default function PropertyDetailClient({ project, similar }: Props) {
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 sticky top-24">
               <h3 className="text-lg font-bold text-slate-900">Enquire About This Property</h3>
               <p className="text-xs text-slate-500">Get official pricing, floor plans &amp; schedule a private site visit.</p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setContactOpen(true);
-                }}
-                className="space-y-3"
-              >
-                <input
-                  type="text"
-                  required
-                  placeholder="Your Full Name *"
-                  className="w-full p-3 rounded-xl border text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
-                />
-                <input
-                  type="tel"
-                  required
-                  placeholder="Mobile Phone Number *"
-                  className="w-full p-3 rounded-xl border text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
-                />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="w-full p-3 rounded-xl border text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
-                />
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl bg-[#124446] hover:bg-[#0d3335] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md cursor-pointer"
-                >
-                  Download Brochure &amp; Price Sheet
-                </button>
-              </form>
+
+              {sidebarSubmitted ? (
+                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-center space-y-2 animate-in fade-in">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center font-bold text-xl">
+                    ✓
+                  </div>
+                  <h4 className="font-bold text-sm">Enquiry Received!</h4>
+                  <p className="text-xs text-emerald-700">
+                    Our senior advisor for {project.title} will send the official brochure &amp; price sheet to your mobile shortly.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSidebarSubmit} className="space-y-3">
+                  {sidebarError && (
+                    <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+                      ⚠️ {sidebarError}
+                    </div>
+                  )}
+
+                  <input
+                    type="text"
+                    required
+                    value={sidebarName}
+                    onChange={(e) => setSidebarName(e.target.value)}
+                    placeholder="Your Full Name *"
+                    className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
+                  />
+
+                  <div className="flex gap-2">
+                    <CountryCodeSelect
+                      value={sidebarCountryCode}
+                      onChange={setSidebarCountryCode}
+                      disabled={sidebarLoading}
+                    />
+                    <input
+                      type="tel"
+                      required
+                      value={sidebarPhone}
+                      onChange={(e) => setSidebarPhone(e.target.value)}
+                      placeholder="Mobile Number *"
+                      className="flex-1 p-3 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
+                    />
+                  </div>
+
+                  <input
+                    type="email"
+                    value={sidebarEmail}
+                    onChange={(e) => setSidebarEmail(e.target.value)}
+                    placeholder="Email Address (Optional)"
+                    className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
+                  />
+
+                  <TurnstileWidget onVerify={setSidebarTurnstile} />
+
+                  <button
+                    type="submit"
+                    disabled={sidebarLoading}
+                    className="w-full py-3 rounded-xl bg-[#124446] hover:bg-[#0d3335] disabled:bg-slate-300 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {sidebarLoading ? (
+                      <span>Sending Request...</span>
+                    ) : (
+                      <span>Download Brochure &amp; Price Sheet</span>
+                    )}
+                  </button>
+                </form>
+              )}
 
               {/* Direct Advisor Contact */}
               {(project.contact?.phone || project.contact?.email) && (
@@ -735,7 +833,21 @@ export default function PropertyDetailClient({ project, similar }: Props) {
         )}
       </main>
 
-      {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
+      {contactOpen && (
+        <ContactModal
+          onClose={() => setContactOpen(false)}
+          projectContext={{
+            projectId: (project as any).id || (project as any)._id,
+            projectName: project.title,
+            projectSlug: project.slug,
+            city: project.city,
+            developer: project.developer,
+            projectUrl: typeof window !== "undefined" ? window.location.href : "",
+            formType: "property_modal",
+            formLocation: "property_detail_hero",
+          }}
+        />
+      )}
       <Footer />
     </div>
   );

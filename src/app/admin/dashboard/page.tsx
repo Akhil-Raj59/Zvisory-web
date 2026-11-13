@@ -52,6 +52,16 @@ async function getAdminStats(token: string): Promise<StatsData | null> {
   }
 }
 
+async function getLeadStats(token: string) {
+  try {
+    const res = await backendApi.adminGetLeadStats(token);
+    if (res?.success && res.data) return res.data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 const STATUS_PILL: Record<string, string> = {
   published: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
   draft: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
@@ -63,7 +73,9 @@ export default async function AdminDashboardPage() {
   if (!user) redirect("/login");
 
   const token = await getAuthToken();
-  const stats = token ? await getAdminStats(token) : null;
+  const [stats, leadStats] = token
+    ? await Promise.all([getAdminStats(token), getLeadStats(token)])
+    : [null, null];
 
   return (
     <div className="space-y-8">
@@ -101,10 +113,63 @@ export default async function AdminDashboardPage() {
         </div>
       )}
 
+      {/* Lead Stats Strip */}
+      {leadStats && (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">📥</span>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                Lead Acquisition Pipeline
+              </h2>
+            </div>
+            <Link
+              href="/admin/leads"
+              className="text-xs font-bold text-[#124446] dark:text-[#D3A479] hover:underline"
+            >
+              Open Leads Console →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+              <div className="text-[11px] text-zinc-500 font-bold uppercase">Total Leads</div>
+              <div className="text-xl font-black mt-0.5">{leadStats.total}</div>
+            </div>
+            <div className="p-3 rounded-lg bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+              <div className="text-[11px] text-blue-600 dark:text-blue-400 font-bold uppercase">New</div>
+              <div className="text-xl font-black text-blue-700 dark:text-blue-300 mt-0.5">{leadStats.new}</div>
+            </div>
+            <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
+              <div className="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase">Contacted</div>
+              <div className="text-xl font-black text-amber-700 dark:text-amber-300 mt-0.5">{leadStats.contacted}</div>
+            </div>
+            <div className="p-3 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50">
+              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">Closed</div>
+              <div className="text-xl font-black text-emerald-700 dark:text-emerald-300 mt-0.5">{leadStats.closed}</div>
+            </div>
+            <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 col-span-2 sm:col-span-1">
+              <div className="text-[11px] text-zinc-500 font-bold uppercase">Today</div>
+              <div className="text-xl font-black mt-0.5">{leadStats.today}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
         <h2 className="text-base font-semibold mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/leads"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#124446] text-white text-sm font-medium hover:bg-[#0d3335] transition-colors shadow-xs"
+          >
+            <span>📥</span> Lead Management
+            {leadStats && leadStats.new > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-[#D3A479] text-[#124446] font-bold text-xs">
+                {leadStats.new} new
+              </span>
+            )}
+          </Link>
           <Link
             href="/admin/projects"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity"
@@ -124,10 +189,10 @@ export default async function AdminDashboardPage() {
             <span>🏙️</span> City Management
           </Link>
           <Link
-            href="/admin/cities/new"
+            href="/admin/developers"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
-            <span>+</span> New City
+            <span>🏢</span> Developers
           </Link>
         </div>
       </div>

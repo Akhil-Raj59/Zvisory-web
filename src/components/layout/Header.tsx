@@ -428,7 +428,15 @@ export function Header({
       </header>
 
       {/* Contact Pop-up Modal */}
-      {contactModalOpen && <ContactModal onClose={() => setContactModalOpen(false)} />}
+      {contactModalOpen && (
+        <ContactModal
+          onClose={() => setContactModalOpen(false)}
+          projectContext={{
+            formType: "header_contact_modal",
+            formLocation: "header_navigation",
+          }}
+        />
+      )}
     </>
   );
 }
