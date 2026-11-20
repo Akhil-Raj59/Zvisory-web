@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CountryCodeSelect } from "@/components/common/CountryCodeSelect";
 import { TurnstileWidget } from "@/components/common/TurnstileWidget";
 import { leadService } from "@/services/leadService";
+import { useAutoCountryCode } from "@/lib/geo";
 
 export interface ContactModalProjectContext {
   projectId?: string;
@@ -23,7 +24,7 @@ interface ContactModalProps {
 
 export function ContactModal({ onClose, projectContext }: ContactModalProps) {
   const [name, setName] = useState("");
-  const [countryCode, setCountryCode] = useState("+91");
+  const { countryCode, isoCode, setCountryCode } = useAutoCountryCode("+91");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -152,13 +153,18 @@ export function ContactModal({ onClose, projectContext }: ContactModalProps) {
                   Phone Number <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2">
-                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} disabled={loading} />
+                  <CountryCodeSelect
+                    value={countryCode}
+                    isoCode={isoCode}
+                    onChange={setCountryCode}
+                    disabled={loading}
+                  />
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="98765 43210"
+                    placeholder={countryCode === "+91" ? "98765 43210" : "Phone number"}
                     className="flex-1 px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#124446]"
                   />
                 </div>

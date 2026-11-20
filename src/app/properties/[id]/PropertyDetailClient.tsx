@@ -10,6 +10,7 @@ import { loanService } from "@/services/loanService";
 import { CountryCodeSelect } from "@/components/common/CountryCodeSelect";
 import { TurnstileWidget } from "@/components/common/TurnstileWidget";
 import { leadService } from "@/services/leadService";
+import { useAutoCountryCode } from "@/lib/geo";
 
 interface Props {
   project: Project;
@@ -50,7 +51,11 @@ export default function PropertyDetailClient({ project, similar }: Props) {
 
   // Sidebar Lead Enquiry Form State
   const [sidebarName, setSidebarName] = useState("");
-  const [sidebarCountryCode, setSidebarCountryCode] = useState("+91");
+  const {
+    countryCode: sidebarCountryCode,
+    isoCode: sidebarIsoCode,
+    setCountryCode: setSidebarCountryCode,
+  } = useAutoCountryCode("+91");
   const [sidebarPhone, setSidebarPhone] = useState("");
   const [sidebarEmail, setSidebarEmail] = useState("");
   const [sidebarTurnstile, setSidebarTurnstile] = useState("");
@@ -670,6 +675,7 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                   <div className="flex gap-2">
                     <CountryCodeSelect
                       value={sidebarCountryCode}
+                      isoCode={sidebarIsoCode}
                       onChange={setSidebarCountryCode}
                       disabled={sidebarLoading}
                     />
@@ -678,7 +684,7 @@ export default function PropertyDetailClient({ project, similar }: Props) {
                       required
                       value={sidebarPhone}
                       onChange={(e) => setSidebarPhone(e.target.value)}
-                      placeholder="Mobile Number *"
+                      placeholder={sidebarCountryCode === "+91" ? "Mobile Number *" : "Phone Number *"}
                       className="flex-1 p-3 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#124446]"
                     />
                   </div>

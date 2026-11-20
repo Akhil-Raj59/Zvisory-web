@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CountryCodeSelect } from "@/components/common/CountryCodeSelect";
 import { TurnstileWidget } from "@/components/common/TurnstileWidget";
 import { leadService } from "@/services/leadService";
+import { useAutoCountryCode } from "@/lib/geo";
 
 interface LeadCollectionProps {
   contextText?: string;
@@ -15,7 +16,7 @@ export function LeadCollection({
   formLocation = "homepage_banner",
 }: LeadCollectionProps) {
   const [name, setName] = useState("");
-  const [countryCode, setCountryCode] = useState("+91");
+  const { countryCode, isoCode, setCountryCode } = useAutoCountryCode("+91");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -55,7 +56,6 @@ export function LeadCollection({
 
         turnstileToken,
       });
-
       setSubmitted(true);
       setName("");
       setPhone("");
@@ -115,13 +115,18 @@ export function LeadCollection({
                 </div>
 
                 <div className="flex gap-2">
-                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} disabled={loading} />
+                  <CountryCodeSelect
+                    value={countryCode}
+                    isoCode={isoCode}
+                    onChange={setCountryCode}
+                    disabled={loading}
+                  />
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Mobile Number *"
+                    placeholder={countryCode === "+91" ? "Mobile Number *" : "Phone Number *"}
                     className="flex-1 px-4 py-3 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#D3A479]"
                   />
                 </div>

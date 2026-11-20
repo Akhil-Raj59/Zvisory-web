@@ -2,25 +2,44 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="bg-[#124446] text-white pt-16 pb-12 border-t border-[#8693AB]/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-[#8693AB]/30">
+    <footer className="relative bg-[#124446] text-white pt-16 pb-12 overflow-hidden border-t border-white/10">
+      {/* Giant Designer Watermark: Z V I S O R Y */}
+      <div className="absolute left-1/2 -bottom-6 -translate-x-1/2 text-white/[0.04] text-[80px] sm:text-[140px] lg:text-[200px] font-black tracking-[0.25em] select-none pointer-events-none whitespace-nowrap">
+        ZVISORY
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-[#D3A479] flex items-center justify-center text-[#124446] font-black text-xl shadow-inner">
                 Z
               </div>
-              <span className="text-2xl font-extrabold tracking-tight text-white">
-                Zvisory
-              </span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black tracking-tight text-white leading-none">
+                  ZVISORY
+                </span>
+                <span className="text-[10px] tracking-widest text-[#D3A479] uppercase font-bold mt-0.5">
+                  Real Estate Advisors
+                </span>
+              </div>
             </div>
-            <p className="text-sm text-[#BDD4E7] leading-relaxed max-w-md">
-              Zvisory is a modern, trusted real estate advisory platform delivering high-precision property comparative analytics, personalized buying advice, and end-to-end home loan assistance.
+
+            <p className="text-xs sm:text-sm text-[#E6FFF1]/80 leading-relaxed max-w-md">
+              Zvisory is an elite real estate advisory platform delivering high-precision property comparative analytics, transparent pricing insights, and end-to-end home loan assistance across India&apos;s prime metro hubs.
             </p>
-            <div className="text-xs text-[#8693AB] space-y-1">
+
+            <div className="text-xs text-[#E6FFF1]/60 space-y-1 pt-1">
               <div>Legal Entity: Zvisory Advisory Services Pvt. Ltd.</div>
-              <div>RERA Registration No: <span className="text-[#D3A479] font-medium">HARERA/GGM/2024/RERA-0912</span></div>
+              <div>
+                RERA Registration:{" "}
+                <span className="text-[#D3A479] font-medium">HARERA/GGM/2024/RERA-0912</span>
+              </div>
+              <div>
+                MahaRERA Reference:{" "}
+                <span className="text-[#D3A479] font-medium">A51900034821</span>
+              </div>
             </div>
           </div>
 
@@ -29,20 +48,15 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-4">
               Quick Links
             </h4>
-            <ul className="space-y-2.5 text-sm text-[#BDD4E7]">
+            <ul className="space-y-2.5 text-xs sm:text-sm text-[#E6FFF1]/80">
               <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  About Us
+                <Link href="/cities" className="hover:text-white transition-colors">
+                  Explore Cities
                 </Link>
               </li>
               <li>
                 <Link href="/search" className="hover:text-white transition-colors">
-                  Explore Properties
-                </Link>
-              </li>
-              <li>
-                <Link href="/cities" className="hover:text-white transition-colors">
-                  Explore Cities
+                  New Projects
                 </Link>
               </li>
               <li>
@@ -52,12 +66,17 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/home-loan" className="hover:text-white transition-colors">
-                  Home Loan EMI Calculator
+                  Home Loan Calculator
                 </Link>
               </li>
               <li>
                 <Link href="/blog" className="hover:text-white transition-colors">
-                  Blogs &amp; Insights
+                  Market Insights &amp; Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-white transition-colors">
+                  About Us
                 </Link>
               </li>
               <li>
@@ -71,12 +90,12 @@ export function Footer() {
           {/* Contact Info */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-4">
-              Contact Info
+              Headquarters
             </h4>
-            <ul className="space-y-2.5 text-sm text-[#BDD4E7]">
+            <ul className="space-y-2.5 text-xs sm:text-sm text-[#E6FFF1]/80">
               <li className="flex items-start gap-2">
                 <span className="text-[#D3A479]">📍</span>
-                <span>Tower B, DLF Cyber City, Sector 24, Gurugram, HR 122002</span>
+                <span>DLF Cyber City, Tower B, Sector 24, Gurugram, HR 122002</span>
               </li>
               <li>
                 <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-white transition-colors">
@@ -100,28 +119,28 @@ export function Footer() {
             </h4>
             <div className="flex items-center gap-3 mb-6">
               <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold transition-colors"
-                aria-label="Facebook"
-              >
-                f
-              </a>
-              <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold transition-colors"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
                 aria-label="LinkedIn"
               >
                 in
               </a>
               <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
+                aria-label="Facebook"
+              >
+                f
+              </a>
+              <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold transition-colors"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
                 aria-label="Instagram"
               >
                 ig
@@ -131,42 +150,25 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-2">
               Legal &amp; Policy
             </h4>
-            <ul className="space-y-1.5 text-xs text-[#8693AB]">
+            <ul className="space-y-1.5 text-xs text-[#E6FFF1]/60">
               <li><Link href="/about" className="hover:text-white">Privacy Policy</Link></li>
               <li><Link href="/about" className="hover:text-white">Terms &amp; Conditions</Link></li>
               <li><Link href="/about" className="hover:text-white">RERA Compliance Statement</Link></li>
+              <li><Link href="/about" className="hover:text-white">Disclaimers &amp; Fair Use</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Section 1.8 Link Sitemap for SEO Interlinking */}
-        <div className="py-6 border-b border-[#8693AB]/20">
-          <h5 className="text-[11px] font-bold uppercase tracking-widest text-[#D3A479] mb-3">
-            Popular Searches &amp; Sitemap Links
-          </h5>
-          <div className="flex flex-wrap gap-[#8693AB] gap-x-4 gap-y-2 text-xs text-[#BDD4E7]">
-            <Link href="/cities/gurugram" className="hover:underline">Properties in Gurugram</Link>
-            <span>•</span>
-            <Link href="/cities/delhi" className="hover:underline">Luxury Apartments Delhi</Link>
-            <span>•</span>
-            <Link href="/cities/bengaluru" className="hover:underline">High Rise Bengaluru</Link>
-            <span>•</span>
-            <Link href="/cities/noida" className="hover:underline">Noida Expressway Projects</Link>
-            <span>•</span>
-            <Link href="/home-loan" className="hover:underline">EMI Calculator</Link>
-            <span>•</span>
-            <Link href="/search?type=Low+Rise" className="hover:underline">Independent Floors</Link>
-            <span>•</span>
-            <Link href="/search?budget=Under+1+Cr" className="hover:underline">Under 1 Cr Properties</Link>
-          </div>
-        </div>
-
         {/* Bottom copyright */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#8693AB]">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#E6FFF1]/60 gap-4">
           <div>
             &copy; {new Date().getFullYear()} Zvisory Advisory Services Pvt. Ltd. All rights reserved.
           </div>
-         
+          <div className="flex items-center gap-4">
+            <span>ISO 9001:2015 Certified Advisory</span>
+            <span>•</span>
+            <span>RERA Registered Channel Partner</span>
+          </div>
         </div>
       </div>
     </footer>
