@@ -1,13 +1,14 @@
 import Link from "next/link";
 
-interface SearchLinkGroup {
-  title: string;
+const HK = '"Hanken Grotesk", system-ui, sans-serif';
+const PJS = '"Plus Jakarta Sans", sans-serif';
+
+interface SearchColumn {
   links: { label: string; href: string }[];
 }
 
-const SEARCH_GROUPS: SearchLinkGroup[] = [
+const SEARCH_COLUMNS: SearchColumn[] = [
   {
-    title: "Delhi NCR Luxury Hubs",
     links: [
       { label: "Luxury Projects in Gurgaon", href: "/search?q=Gurgaon&type=High+Rise" },
       { label: "Apartments in Gurgaon", href: "/search?city=Gurugram" },
@@ -18,7 +19,6 @@ const SEARCH_GROUPS: SearchLinkGroup[] = [
     ],
   },
   {
-    title: "Bengaluru Tech Corridors",
     links: [
       { label: "Luxury Apartments in Hebbal", href: "/search?q=Hebbal" },
       { label: "Flats in Whitefield", href: "/search?q=Whitefield" },
@@ -29,7 +29,6 @@ const SEARCH_GROUPS: SearchLinkGroup[] = [
     ],
   },
   {
-    title: "Hyderabad Prime Localities",
     links: [
       { label: "Gated Communities in Kokapet", href: "/search?q=Kokapet" },
       { label: "Luxury High Rise Financial District", href: "/search?q=Financial+District" },
@@ -40,7 +39,6 @@ const SEARCH_GROUPS: SearchLinkGroup[] = [
     ],
   },
   {
-    title: "Mumbai & Western Metros",
     links: [
       { label: "Luxury Flats in Worli & Lower Parel", href: "/search?q=Worli" },
       { label: "Sea-Facing Penthouses Bandra", href: "/search?q=Bandra" },
@@ -54,44 +52,82 @@ const SEARCH_GROUPS: SearchLinkGroup[] = [
 
 export function TopPropertySearches() {
   return (
-    <section className="py-14 bg-white border-b border-[#E5EDE9]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <span className="text-xs font-bold uppercase tracking-widest text-[#D3A479]">
-            Popular Localities
-          </span>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-[#124446] tracking-tight mt-1">
-            Top Property Searches
-          </h2>
-          <p className="text-xs sm:text-sm text-[#557173] mt-1">
-            Quick links to premier micro-markets, verified builder developments, and popular luxury residential configurations.
-          </p>
-        </div>
+    <section
+      style={{
+        background: "#F8FFFB",
+        color: "#124446",
+        padding: "56px 150px 72px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 56,
+        boxSizing: "border-box",
+        width: "100%",
+      }}
+      className="links-section"
+    >
+      <style>{`
+        @media (max-width: 1024px) {
+          .links-section { padding: 40px 24px 48px !important; gap: 32px !important; }
+          .links-grid { flex-direction: column !important; gap: 24px !important; }
+        }
+      `}</style>
 
-        {/* 4 Columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {SEARCH_GROUPS.map((group, idx) => (
-            <div key={idx} className="space-y-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#124446] pb-2 border-b border-[#E5EDE9]">
-                {group.title}
-              </h3>
-              <ul className="space-y-2">
-                {group.links.map((link, lIdx) => (
-                  <li key={lIdx}>
-                    <Link
-                      href={link.href}
-                      className="text-xs text-[#557173] hover:text-[#124446] hover:underline transition-colors block leading-relaxed"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+      {/* Title */}
+      <h2
+        style={{
+          margin: 0,
+          width: "100%",
+          textAlign: "center",
+          font: `600 32px/normal ${PJS}`,
+          color: "#124446",
+        }}
+      >
+        Top Property Searches
+      </h2>
+
+      {/* Link Grid: 4 Columns */}
+      <div
+        className="links-grid"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "0 8px",
+          boxSizing: "border-box",
+          font: `400 16px/normal ${HK}`,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {SEARCH_COLUMNS.map((col, cIdx) => (
+          <div
+            key={cIdx}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+            }}
+          >
+            {col.links.map((link, lIdx) => (
+              <Link
+                key={lIdx}
+                href={link.href}
+                style={{
+                  color: "#124446",
+                  textDecoration: "none",
+                  display: "block",
+                  lineHeight: "21px",
+                  height: 21,
+                  transition: "color 0.15s ease",
+                }}
+                className="hover:text-[#D3A479]"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-

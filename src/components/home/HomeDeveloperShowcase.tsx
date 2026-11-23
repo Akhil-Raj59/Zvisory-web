@@ -1,18 +1,47 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { Developer } from "@/models/developer";
 
-const TOP_DEV_NAMES = [
-  "DLF",
-  "Godrej Properties",
-  "Prestige Group",
-  "Sobha",
-  "Oberoi Realty",
-  "Tata Housing",
-  "Brigade Group",
-  "Lodha",
+const HK = '"Hanken Grotesk", system-ui, sans-serif';
+const PJS = '"Plus Jakarta Sans", sans-serif';
+
+const DEFAULT_DEVELOPERS: { name: string; slug: string; logo?: string }[] = [
+  {
+    name: "Prestige Group",
+    slug: "prestige-group",
+    logo: "https://images.seeklogo.com/logo-png/43/1/prestige-group-logo-png_seeklogo-431872.png",
+  },
+  {
+    name: "Godrej Properties",
+    slug: "godrej-properties",
+    logo: "https://images.seeklogo.com/logo-png/24/1/godrej-properties-logo-png_seeklogo-249539.png",
+  },
+  {
+    name: "DLF",
+    slug: "dlf",
+  },
+  {
+    name: "Sobha",
+    slug: "sobha",
+  },
+  {
+    name: "Oberoi Realty",
+    slug: "oberoi-realty",
+  },
+  {
+    name: "Tata Housing",
+    slug: "tata-housing",
+  },
+  {
+    name: "Brigade Group",
+    slug: "brigade-group",
+  },
+  {
+    name: "Lodha",
+    slug: "lodha",
+  },
 ];
 
 interface HomeDeveloperShowcaseProps {
@@ -20,111 +49,215 @@ interface HomeDeveloperShowcaseProps {
 }
 
 export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcaseProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [startIndex, setStartIndex] = useState(0);
 
-  // If live developers list is short, ensure top developers are visible
-  const devList = developers.length > 0 ? developers : TOP_DEV_NAMES.map((name, i) => ({
-    id: `dev-${i}`,
-    name,
-    slug: name.toLowerCase().replace(/\s+/g, "-"),
-    projectCount: 8 + (i % 6),
-  }));
+  const devList =
+    developers.length >= 4
+      ? developers.map((d) => ({
+          name: d.name,
+          slug: d.slug || d.name.toLowerCase().replace(/\s+/g, "-"),
+          logo: d.logo,
+        }))
+      : DEFAULT_DEVELOPERS;
 
-  function scroll(direction: "left" | "right") {
-    if (!scrollRef.current) return;
-    const amount = direction === "left" ? -300 : 300;
-    scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
+  const totalDevs = devList.length;
+  // Display 4 cards visible at a time on desktop
+  const VISIBLE_COUNT = 4;
+  const maxIndex = Math.max(0, totalDevs - VISIBLE_COUNT);
+
+  function handlePrev() {
+    setStartIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
+  }
+
+  function handleNext() {
+    setStartIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
+  }
+
+  const visibleDevs = devList.slice(startIndex, startIndex + VISIBLE_COUNT);
+  // Wrap around if needed to always show 4
+  if (visibleDevs.length < VISIBLE_COUNT && totalDevs >= VISIBLE_COUNT) {
+    visibleDevs.push(...devList.slice(0, VISIBLE_COUNT - visibleDevs.length));
   }
 
   return (
-    <section className="py-16 bg-[#F8FFFB] border-b border-[#E5EDE9]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#D3A479]">
-              Trusted Brands
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#124446] tracking-tight mt-1">
-              Our Top Developers
-            </h2>
-            <p className="text-xs sm:text-sm text-[#557173] mt-1 max-w-xl">
-              Collaborating exclusively with grade-A developers recognized for structural quality, punctual delivery, and RERA compliance.
-            </p>
-          </div>
+    <section
+      style={{
+        background: "#124446",
+        padding: "64px 150px 72px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 56,
+        boxSizing: "border-box",
+        width: "100%",
+      }}
+      className="devs-section"
+    >
+      <style>{`
+        @media (max-width: 1024px) {
+          .devs-section { padding: 48px 24px 56px !important; gap: 32px !important; }
+          .devs-carousel { width: 100% !important; }
+          .devs-row { flex-wrap: wrap !important; justify-content: center !important; }
+        }
+      `}</style>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/developers"
-              className="text-xs font-bold text-[#124446] hover:text-[#D3A479] transition-colors"
-            >
-              View All Developers →
-            </Link>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => scroll("left")}
-                className="w-9 h-9 rounded-full border border-[#557173]/20 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-[#124446] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll left"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => scroll("right")}
-                className="w-9 h-9 rounded-full border border-[#557173]/20 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-[#124446] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll right"
-              >
-                ›
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Heading */}
+      <h2
+        style={{
+          margin: 0,
+          font: `600 32px/normal ${PJS}`,
+          color: "#F8FFFB",
+          textAlign: "center",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        Our Top Developers
+      </h2>
 
-        {/* Carousel Container */}
-        <div
-          ref={scrollRef}
-          className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
+      {/* Carousel */}
+      <div
+        className="devs-carousel"
+        style={{
+          width: 1544,
+          maxWidth: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 28,
+          padding: "8px 0 16px",
+          justifyContent: "center",
+        }}
+      >
+        {/* Left Arrow Button */}
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Previous developers"
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: "1.5px solid #D3A479",
+            background: "transparent",
+            color: "#D3A479",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flexShrink: 0,
+            fontSize: 16,
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(211,164,121,0.15)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+          }}
         >
-          {devList.map((dev) => {
-            const count = (dev as Developer).publishedProjectsCount ?? dev.projectCount ?? 0;
-            return (
-              <Link
-                key={dev.id || dev.name}
-                href={`/developers/${dev.slug || dev.id}`}
-                className="group flex flex-col items-center justify-center min-w-[200px] sm:min-w-[220px] p-6 bg-white rounded-2xl border border-[#E5EDE9] hover:border-[#124446] shadow-xs hover:shadow-lg transition-all duration-300 text-center shrink-0"
+          ←
+        </button>
+
+        {/* 4 Developer Tiles Row */}
+        <div
+          className="devs-row"
+          style={{
+            display: "flex",
+            gap: 40,
+            justifyContent: "center",
+            flex: 1,
+          }}
+        >
+          {visibleDevs.map((dev, idx) => (
+            <Link
+              key={`${dev.slug}-${idx}`}
+              href={`/developers/${dev.slug}`}
+              style={{
+                width: 326,
+                height: 303,
+                boxSizing: "border-box",
+                background: "#F8FFFB",
+                border: "1px solid #D3A479",
+                borderRadius: 8,
+                padding: 16,
+                filter: "drop-shadow(0 4px 3px rgba(0,0,0,0.25))",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                flexShrink: 0,
+                transition: "transform 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-4px)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+              }}
+            >
+              {dev.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={dev.logo}
+                  alt={dev.name}
+                  style={{
+                    width: 292,
+                    height: 139,
+                    objectFit: "contain",
+                  }}
+                  onError={(e) => {
+                    // Fall back to clean typography
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              ) : null}
+
+              {/* Developer Name text */}
+              <span
+                style={{
+                  font: `600 24px/normal ${HK}`,
+                  color: "#124446",
+                  textAlign: "center",
+                  marginTop: dev.logo ? 12 : 0,
+                  maxWidth: 292,
+                }}
               >
-                {/* Brand Initial Badge or Logo */}
-                <div className="w-16 h-16 rounded-2xl bg-[#F8FFFB] border border-[#E5EDE9] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform overflow-hidden p-2">
-                  {(dev as Developer).logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={(dev as Developer).logo}
-                      alt={dev.name}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-xl font-extrabold text-[#124446]">
-                      {dev.name.charAt(0)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Developer Name */}
-                <h3 className="font-extrabold text-sm text-[#124446] group-hover:text-[#D3A479] transition-colors line-clamp-1">
-                  {dev.name}
-                </h3>
-
-                {/* Active Projects Counter */}
-                <span className="text-[11px] font-semibold text-[#557173] mt-1">
-                  {count > 0 ? `${count} Active Projects` : "Verified Partner"}
-                </span>
-              </Link>
-            );
-          })}
+                {dev.name}
+              </span>
+            </Link>
+          ))}
         </div>
+
+        {/* Right Arrow Button */}
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Next developers"
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: "1.5px solid #D3A479",
+            background: "transparent",
+            color: "#D3A479",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flexShrink: 0,
+            fontSize: 16,
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(211,164,121,0.15)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+          }}
+        >
+          →
+        </button>
       </div>
     </section>
   );
 }
-

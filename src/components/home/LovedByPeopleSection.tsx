@@ -37,24 +37,47 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
     videoThumbnail: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
   },
+  {
+    id: "priya-kapoor",
+    name: "Priya Kapoor",
+    role: "First-time Buyer",
+    location: "Mumbai",
+    quote:
+      "As a first-time homebuyer, the process felt overwhelming. Zvisory's advisors walked me through every step and helped me find the perfect flat in Mumbai within my budget.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+    videoThumbnail: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+  },
 ];
 
 const STATS = [
   { value: "3,000+", label: "Homes Sold" },
-  { value: "₹2,500+ Cr", label: "Advised Value" },
+  { value: "₹2,500 Cr+", label: "Advised Value" },
   { value: "50+", label: "Top Developers" },
   { value: "98%", label: "Client Satisfaction" },
   { value: "15+", label: "Years Experience" },
 ];
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=813&q=80";
+
+const jakartaSans: React.CSSProperties = {
+  fontFamily: '"Plus Jakarta Sans", sans-serif',
+};
+
+const hankenGrotesk: React.CSSProperties = {
+  fontFamily: '"Hanken Grotesk", system-ui, sans-serif',
+};
 
 interface LovedByPeopleSectionProps {
   testimonials?: Testimonial[];
 }
 
 export function LovedByPeopleSection({
-  testimonials = DEFAULT_TESTIMONIALS,
+  testimonials,
 }: LovedByPeopleSectionProps) {
-  const items = testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS;
+  const items =
+    testimonials && testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const current = items[currentIndex] || items[0];
@@ -67,153 +90,368 @@ export function LovedByPeopleSection({
     setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
   }
 
+  // Show 4 pager dots (spec says 4 dots regardless)
+  const DOT_COUNT = 4;
+
   return (
-    <section className="py-20 bg-[#F8FFFB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Heading matching Figma Design */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-[#D3A479]">
-            Client Experiences
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-[#124446] tracking-tight">
-            We Are Loved By People From All Part Of The Country
-          </h2>
-          <p className="text-xs sm:text-sm font-semibold text-[#557173]">
-            Real Stories. Real People. Real Trust.
-          </p>
-        </div>
+    <section style={{ background: "#124446" }}>
+      {/* ── Band 1: Testimonial ── */}
+      <div
+        style={{
+          background: "#124446",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+        className="testimonial-band"
+      >
+        {/* Inner row */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+          className="testimonial-inner-row"
+        >
+          {/* ── Left Column ── */}
+          <div
+            style={{
+              padding: "10px 0",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+              alignSelf: "stretch",
+            }}
+            className="testimonial-left-col"
+          >
+            {/* Title */}
+            <h2
+              style={{
+                ...jakartaSans,
+                fontWeight: 600,
+                fontSize: "32px",
+                lineHeight: "normal",
+                color: "#F8FFFB",
+                margin: 0,
+              }}
+            >
+              We Are Loved By People From All Parts Of The Country
+            </h2>
 
-        {/* Dark Teal Hero Card Container */}
-        <div className="bg-[#124446] text-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden">
-          {/* Subtle geometric background overlay */}
-          <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-[#E6FFF1]/5 blur-3xl pointer-events-none" />
+            {/* Subtitle */}
+            <p
+              style={{
+                ...hankenGrotesk,
+                fontWeight: 400,
+                fontSize: "16px",
+                lineHeight: "normal",
+                color: "#FFFFFF",
+                margin: 0,
+              }}
+            >
+              Real Stories. Real People. Real Trust.
+            </p>
 
-          {/* Testimonial Content: 2-Column Desktop Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Column: Quote, Profile, Controls */}
-            <div className="lg:col-span-7 space-y-6 flex flex-col justify-between">
-              {/* Quote Mark */}
-              <div className="text-[#D3A479] text-5xl font-serif leading-none select-none">
-                “
-              </div>
-
-              {/* Quote Body */}
-              <p className="text-base sm:text-lg lg:text-xl font-medium text-white/95 leading-relaxed min-h-[100px]">
-                {current.quote}
-              </p>
-
-              {/* User Meta Row */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#D3A479] shadow-sm shrink-0 bg-[#0d3233]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={current.avatar}
-                      alt={current.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div>
-                    <h3 className="font-extrabold text-white text-base leading-snug">
-                      {current.name}
-                    </h3>
-                    <p className="text-xs text-[#E6FFF1]/80 font-medium flex items-center gap-1.5 mt-0.5">
-                      <span>📍 {current.location}</span>
-                      <span>•</span>
-                      <span className="text-[#D3A479]">Verified Client</span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Rating Stars */}
-                <div className="flex items-center gap-1 text-[#D3A479] text-sm">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Carousel Navigation Arrows & Indicators */}
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-2">
-                  {items.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCurrentIndex(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        idx === currentIndex
-                          ? "w-8 bg-[#D3A479]"
-                          : "w-2 bg-white/30 hover:bg-white/60"
-                      }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    className="w-10 h-10 rounded-full border border-white/20 bg-white/10 hover:bg-white hover:text-[#124446] text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                    aria-label="Previous testimonial"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="w-10 h-10 rounded-full border border-white/20 bg-white/10 hover:bg-white hover:text-[#124446] text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                    aria-label="Next testimonial"
-                  >
-                    ›
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Architectural Photography */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden shadow-2xl border border-white/15">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={
-                    current.videoThumbnail ||
-                    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
-                  }
-                  alt="Luxury Residence"
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#D3A479] text-[#124446]">
-                    Zvisory Advisory Experience
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Stat Row: 5 Pill Cards */}
-          <div className="mt-12 pt-8 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {STATS.map((stat, i) => (
+            {/* Content block */}
+            <div
+              style={{
+                paddingTop: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
+              {/* Author row */}
               <div
-                key={i}
-                className="bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-2xl p-4 text-center"
+                style={{
+                  display: "flex",
+                  gap: "16px",
+                  alignItems: "center",
+                }}
               >
-                <div className="text-xl sm:text-2xl font-black text-[#E6FFF1] tracking-tight">
-                  {stat.value}
+                {/* Avatar */}
+                <div
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    background: "#F8FFFB",
+                    flexShrink: 0,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={current.avatar}
+                    alt={current.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </div>
-                <div className="text-xs text-[#E6FFF1]/70 font-semibold mt-1">
-                  {stat.label}
+
+                {/* Name block */}
+                <div>
+                  <div
+                    style={{
+                      ...hankenGrotesk,
+                      fontWeight: 400,
+                      fontSize: "16px",
+                      color: "#F8FFFB",
+                    }}
+                  >
+                    {current.name}
+                  </div>
+                  <div
+                    style={{
+                      ...hankenGrotesk,
+                      fontWeight: 400,
+                      fontSize: "12px",
+                      color: "#FFFFFF",
+                    }}
+                  >
+                    {current.location}
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Quote text row */}
+              <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                {/* Opening quote mark — rotated 180° to look like a closing/decorative glyph */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: "inline-block",
+                    width: 36,
+                    height: 26,
+                    flexShrink: 0,
+                    fontSize: "36px",
+                    lineHeight: "26px",
+                    color: "#D3A479",
+                    transform: "rotate(180deg)",
+                    fontFamily: "Georgia, serif",
+                    userSelect: "none",
+                  }}
+                >
+                  &ldquo;
+                </span>
+
+                <p
+                  style={{
+                    ...hankenGrotesk,
+                    fontWeight: 400,
+                    fontSize: "16px",
+                    lineHeight: "1.6",
+                    color: "#FFFFFF",
+                    margin: 0,
+                  }}
+                >
+                  {current.quote}
+                </p>
+              </div>
+            </div>
+
+            {/* Pager */}
+            <div
+              style={{
+                display: "flex",
+                gap: "60px",
+                alignItems: "center",
+                height: "24px",
+                width: "218px",
+              }}
+            >
+              {/* Left arrow */}
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous testimonial"
+                style={{
+                  width: 24,
+                  height: 24,
+                  color: "#FFFFFF",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                  padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                ←
+              </button>
+
+              {/* Dots */}
+              <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                {Array.from({ length: DOT_COUNT }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setCurrentIndex(idx % items.length)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background:
+                        idx === currentIndex
+                          ? "#FFFFFF"
+                          : "rgba(255,255,255,0.4)",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Right arrow */}
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next testimonial"
+                style={{
+                  width: 24,
+                  height: 24,
+                  color: "#FFFFFF",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                  padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                →
+              </button>
+            </div>
           </div>
+
+          {/* ── Right Column: Image ── */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={current.videoThumbnail || FALLBACK_IMAGE}
+            alt="Luxury property"
+            className="testimonial-right-img"
+            style={{
+              borderRadius: "120px 0 120px 0",
+              objectFit: "cover",
+              flexShrink: 0,
+            }}
+          />
         </div>
       </div>
+
+      {/* ── Band 2: Stats ── */}
+      <div
+        style={{
+          background: "#124446",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        className="stats-band"
+      >
+        {STATS.map((stat, i) => (
+          <div
+            key={i}
+            style={{
+              background: "#D3A479",
+              padding: "20px",
+              borderRadius: "8px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2px",
+              color: "#124446",
+            }}
+            className="stat-card"
+          >
+            <div
+              style={{
+                ...jakartaSans,
+                fontWeight: 600,
+                fontSize: "32px",
+                lineHeight: "normal",
+                color: "#124446",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {stat.value}
+            </div>
+            <div
+              style={{
+                ...hankenGrotesk,
+                fontWeight: 600,
+                fontSize: "20px",
+                lineHeight: "normal",
+                color: "#124446",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Responsive styles ── */}
+      <style>{`
+        /* Desktop defaults */
+        .testimonial-band {
+          padding: 72px 150px 0;
+        }
+        .testimonial-inner-row {
+          flex-direction: row;
+        }
+        .testimonial-left-col {
+          width: 619px;
+        }
+        .testimonial-right-img {
+          width: 813px;
+          height: 408px;
+        }
+        .stats-band {
+          padding: 56px 0 72px;
+          gap: 68px;
+          flex-wrap: nowrap;
+        }
+
+        /* Mobile (<768px) */
+        @media (max-width: 767px) {
+          .testimonial-band {
+            padding: 48px 24px 0;
+          }
+          .testimonial-inner-row {
+            flex-direction: column;
+            gap: 32px;
+          }
+          .testimonial-left-col {
+            width: 100%;
+          }
+          .testimonial-right-img {
+            width: 100%;
+            height: 220px;
+          }
+          .stats-band {
+            padding: 40px 24px 56px;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+          }
+          .stat-card {
+            min-width: calc(45% - 8px);
+          }
+        }
+      `}</style>
     </section>
   );
 }
-

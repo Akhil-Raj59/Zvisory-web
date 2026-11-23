@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import type { City } from "@/models/city";
+import { ProjectShowcaseSection } from "./ProjectShowcaseSection";
+import type { Project } from "@/models/project";
 
 const CITY_FALLBACK_IMAGES: Record<string, string> = {
   Gurugram: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=400&q=80",
@@ -14,126 +15,210 @@ const CITY_FALLBACK_IMAGES: Record<string, string> = {
   Delhi: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=400&q=80",
 };
 
-const DEFAULT_CITY_IMAGE = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80";
+const DEFAULT_CITY_IMAGE =
+  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80";
+
+type TabKey = "new_projects" | "ready_to_move" | "top_localities" | "top_developers";
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: "new_projects", label: "New Projects" },
+  { key: "ready_to_move", label: "Ready To Move" },
+  { key: "top_localities", label: "Top Localities" },
+  { key: "top_developers", label: "Top Developers" },
+];
+
+const DEFAULT_CITIES: City[] = [
+  { id: "gurugram", name: "Gurugram", slug: "gurugram", projectCount: 24 },
+  { id: "bengaluru", name: "Bengaluru", slug: "bengaluru", projectCount: 18 },
+  { id: "hyderabad", name: "Hyderabad", slug: "hyderabad", projectCount: 15 },
+  { id: "mumbai", name: "Mumbai", slug: "mumbai", projectCount: 22 },
+  { id: "pune", name: "Pune", slug: "pune", projectCount: 12 },
+  { id: "noida", name: "Noida", slug: "noida", projectCount: 14 },
+];
 
 interface CityBrowseCirclesProps {
   cities: City[];
+  projects?: Project[];
 }
 
-export function CityBrowseCircles({ cities }: CityBrowseCirclesProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+const HK = '"Hanken Grotesk", system-ui, sans-serif';
+const PJS = '"Plus Jakarta Sans", sans-serif';
 
-  // If cities prop is empty, provide sensible default tier-1 metro list
-  const displayCities = cities && cities.length > 0 ? cities : [
-    { id: "gurugram", name: "Gurugram", slug: "gurugram", projectCount: 24 },
-    { id: "bengaluru", name: "Bengaluru", slug: "bengaluru", projectCount: 18 },
-    { id: "hyderabad", name: "Hyderabad", slug: "hyderabad", projectCount: 15 },
-    { id: "mumbai", name: "Mumbai", slug: "mumbai", projectCount: 22 },
-    { id: "pune", name: "Pune", slug: "pune", projectCount: 12 },
-    { id: "noida", name: "Noida", slug: "noida", projectCount: 14 },
-  ];
+export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesProps) {
+  const displayCities = cities && cities.length > 0 ? cities : DEFAULT_CITIES;
 
-  function scroll(direction: "left" | "right") {
-    if (!scrollRef.current) return;
-    const scrollAmount = direction === "left" ? -280 : 280;
-    scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-  }
+  const [selectedCity, setSelectedCity] = useState<string>(displayCities[0]?.name ?? "");
+  const [activeTab, setActiveTab] = useState<TabKey>("new_projects");
+
+  // Filter projects by selected city + active tab
+  const filteredProjects = (() => {
+    let base = projects.filter(
+      (p) => p.city?.toLowerCase() === selectedCity.toLowerCase()
+    );
+
+    // If no projects found specifically for this city in live data, show all fetched projects
+    if (base.length === 0 && projects.length > 0) {
+      base = projects;
+    }
+
+    switch (activeTab) {
+      case "ready_to_move":
+        base = base.filter(
+          (p) =>
+            p.status?.toLowerCase().includes("ready") ||
+            p.possession?.toLowerCase().includes("ready")
+        );
+        break;
+      case "top_developers":
+        base = [...base].sort((a, b) => {
+          const aTop = /dlf|godrej|prestige|sobha|oberoi/i.test(a.developer || "");
+          const bTop = /dlf|godrej|prestige|sobha|oberoi/i.test(b.developer || "");
+          return aTop === bTop ? 0 : aTop ? -1 : 1;
+        });
+        break;
+      case "top_localities":
+        base = base.filter((p) => Boolean(p.location || p.microMarket));
+        break;
+      case "new_projects":
+      default:
+        break;
+    }
+    return base;
+  })();
 
   return (
-    <section className="py-14 bg-[#F8FFFB] border-b border-[#E5EDE9]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#D3A479]">
-              Explore Locations
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#124446] tracking-tight mt-1">
-              Browse New Projects in India
-            </h2>
-            <p className="text-xs sm:text-sm text-[#557173] mt-1 max-w-xl">
-              Discover verified high-rise apartments, luxury villas, and prime plots across India&apos;s fastest growing real estate hubs.
-            </p>
-          </div>
+    <section
+      style={{
+        background: "#F8FFFB",
+        display: "flex",
+        flexDirection: "column",
+        gap: 32,
+        alignItems: "center",
+        padding: "64px 0 72px",
+        width: "100%",
+      }}
+    >
+      {/* Heading */}
+      <h2
+        style={{
+          font: `600 32px/normal ${PJS}`,
+          color: "#124446",
+          textAlign: "center",
+          padding: "0 4px 24px",
+          margin: 0,
+        }}
+      >
+        Browse New Projects in India
+      </h2>
 
-          {/* Controls: View all + scroll buttons */}
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/cities"
-              className="text-xs font-bold text-[#124446] hover:text-[#D3A479] transition-colors"
+      {/* City chips row */}
+      <div
+        style={{
+          display: "flex",
+          gap: 40,
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          flexWrap: "wrap",
+        }}
+      >
+        {displayCities.map((city) => {
+          const isSelected = city.name === selectedCity;
+          const imgSrc =
+            city.image ||
+            city.coverImage ||
+            CITY_FALLBACK_IMAGES[city.name] ||
+            DEFAULT_CITY_IMAGE;
+
+          return (
+            <button
+              key={city.id || city.name}
+              type="button"
+              onClick={() => setSelectedCity(city.name)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                alignItems: "center",
+                padding: 8,
+                borderRadius: 12,
+                cursor: "pointer",
+                border: isSelected ? "0.5px solid #D3A479" : "none",
+                background: isSelected ? "rgba(18,68,70,0.2)" : "none",
+                opacity: isSelected ? 1 : 0.5,
+                width: isSelected ? 125 : undefined,
+                transition: "opacity 150ms",
+                outline: "none",
+              }}
+              onMouseEnter={(e) => {
+                if (!isSelected) (e.currentTarget as HTMLButtonElement).style.opacity = "0.8";
+              }}
+              onMouseLeave={(e) => {
+                if (!isSelected) (e.currentTarget as HTMLButtonElement).style.opacity = "0.5";
+              }}
             >
-              View All Cities →
-            </Link>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => scroll("left")}
-                className="w-9 h-9 rounded-full border border-[#557173]/20 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-[#124446] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll left"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imgSrc}
+                alt={city.name}
+                width={80}
+                height={80}
+                style={{ borderRadius: "50%", objectFit: "cover", width: 80, height: 80 }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = DEFAULT_CITY_IMAGE;
+                }}
+              />
+              <span
+                style={{
+                  font: `600 20px/normal ${HK}`,
+                  color: "#124446",
+                }}
               >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => scroll("right")}
-                className="w-9 h-9 rounded-full border border-[#557173]/20 bg-white hover:bg-[#124446] hover:text-white flex items-center justify-center text-[#124446] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll right"
-              >
-                ›
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Circular Avatar Cities Row */}
-        <div
-          ref={scrollRef}
-          className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
-        >
-          {displayCities.map((city) => {
-            const count = (city as City).publishedProjectsCount ?? city.projectCount ?? 0;
-            const imgSrc =
-              (city as City).image ||
-              (city as City).coverImage ||
-              CITY_FALLBACK_IMAGES[city.name] ||
-              DEFAULT_CITY_IMAGE;
-
-            return (
-              <Link
-                key={city.id || city.name}
-                href={`/search?city=${encodeURIComponent(city.name)}`}
-                className="flex flex-col items-center group shrink-0 transition-transform duration-300 hover:-translate-y-1"
-              >
-                {/* Circular Image Container with mint border glow */}
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white border-2 border-[#E5EDE9] group-hover:border-[#124446] shadow-sm group-hover:shadow-md transition-all">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={imgSrc}
-                      alt={city.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = DEFAULT_CITY_IMAGE;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* City Name */}
-                <span className="mt-3 text-sm font-bold text-[#124446] group-hover:text-[#D3A479] transition-colors text-center">
-                  {city.name}
-                </span>
-
-                {/* Projects Pill */}
-                <span className="text-[11px] font-medium text-[#557173] group-hover:text-slate-700 transition-colors">
-                  {count > 0 ? `${count} Projects` : "Explore Projects"}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+                {city.name}
+              </span>
+            </button>
+          );
+        })}
       </div>
+
+      {/* Tabs row */}
+      <div
+        style={{
+          display: "flex",
+          gap: 36,
+          alignItems: "center",
+          paddingTop: 24,
+        }}
+      >
+        {TABS.map((tab) => {
+          const isActive = tab.key === activeTab;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: "10px 24px",
+                font: `400 24px/normal ${HK}`,
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                borderBottom: isActive ? "1px solid #D3A479" : "1px solid transparent",
+                color: isActive ? "#124446" : "#557173",
+                outline: "none",
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Project showcase — passes filtered projects */}
+      <ProjectShowcaseSection
+        projects={filteredProjects}
+        selectedCity={selectedCity}
+      />
     </section>
   );
 }
-

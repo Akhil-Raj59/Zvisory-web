@@ -1,173 +1,382 @@
 import Link from "next/link";
 
+const HK = '"Hanken Grotesk", system-ui, sans-serif';
+
 export function Footer() {
   return (
-    <footer className="relative bg-[#124446] text-white pt-16 pb-12 overflow-hidden border-t border-white/10">
-      {/* Giant Designer Watermark: Z V I S O R Y */}
-      <div className="absolute left-1/2 -bottom-6 -translate-x-1/2 text-white/[0.04] text-[80px] sm:text-[140px] lg:text-[200px] font-black tracking-[0.25em] select-none pointer-events-none whitespace-nowrap">
-        ZVISORY
-      </div>
+    <footer
+      style={{
+        borderTop: "0.5px solid #D3A479",
+        background: "#124446",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      <style>{`
+        @media (max-width: 1024px) {
+          .footer-main {
+            padding: 40px 24px 32px !important;
+            flex-direction: column !important;
+            gap: 36px !important;
+          }
+          .footer-brand {
+            width: 100% !important;
+          }
+          .footer-logotype span {
+            font-size: clamp(36px, 9vw, 96px) !important;
+            letter-spacing: clamp(8px, 3vw, 40px) !important;
+            padding-right: clamp(8px, 3vw, 40px) !important;
+            width: auto !important;
+          }
+          .footer-legal {
+            padding: 16px 24px !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            text-align: center !important;
+          }
+        }
+      `}</style>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
-          {/* Brand Info */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[#D3A479] flex items-center justify-center text-[#124446] font-black text-xl shadow-inner">
-                Z
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-white leading-none">
-                  ZVISORY
-                </span>
-                <span className="text-[10px] tracking-widest text-[#D3A479] uppercase font-bold mt-0.5">
-                  Real Estate Advisors
-                </span>
-              </div>
-            </div>
+      {/* Main Row: Brand, Quick Links, RERA */}
+      <div
+        className="footer-main"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          padding: "60px 150px 52px",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* Brand Summary */}
+        <div
+          className="footer-brand"
+          style={{
+            width: 568,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 14,
+            textAlign: "center",
+            color: "#FFFFFF",
+            font: `600 20px/normal ${HK}`,
+          }}
+        >
+          <span>
+            Your trusted partner in finding the right property in 5 major cities of India, wherever you are in the world.
+          </span>
 
-            <p className="text-xs sm:text-sm text-[#E6FFF1]/80 leading-relaxed max-w-md">
-              Zvisory is an elite real estate advisory platform delivering high-precision property comparative analytics, transparent pricing insights, and end-to-end home loan assistance across India&apos;s prime metro hubs.
-            </p>
+          {/* Social Row: 5 tiles */}
+          <div
+            style={{
+              display: "flex",
+              gap: 24,
+              alignItems: "center",
+              marginTop: 6,
+            }}
+          >
+            {/* Instagram */}
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "transparent",
+                border: "1px solid #D3A479",
+                color: "#D3A479",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              ig
+            </a>
 
-            <div className="text-xs text-[#E6FFF1]/60 space-y-1 pt-1">
-              <div>Legal Entity: Zvisory Advisory Services Pvt. Ltd.</div>
-              <div>
-                RERA Registration:{" "}
-                <span className="text-[#D3A479] font-medium">HARERA/GGM/2024/RERA-0912</span>
-              </div>
-              <div>
-                MahaRERA Reference:{" "}
-                <span className="text-[#D3A479] font-medium">A51900034821</span>
-              </div>
-            </div>
-          </div>
+            {/* LinkedIn */}
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#124446",
+                border: "1px solid #D3A479",
+                color: "#D3A479",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              in
+            </a>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-4">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-[#E6FFF1]/80">
-              <li>
-                <Link href="/cities" className="hover:text-white transition-colors">
-                  Explore Cities
-                </Link>
-              </li>
-              <li>
-                <Link href="/search" className="hover:text-white transition-colors">
-                  New Projects
-                </Link>
-              </li>
-              <li>
-                <Link href="/developers" className="hover:text-white transition-colors">
-                  Top Developers
-                </Link>
-              </li>
-              <li>
-                <Link href="/home-loan" className="hover:text-white transition-colors">
-                  Home Loan Calculator
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-white transition-colors">
-                  Market Insights &amp; Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="hover:text-white transition-colors">
-                  Careers
-                </Link>
-              </li>
-            </ul>
-          </div>
+            {/* Facebook */}
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#D3A479",
+                color: "#124446",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              f
+            </a>
 
-          {/* Contact Info */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-4">
-              Headquarters
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-[#E6FFF1]/80">
-              <li className="flex items-start gap-2">
-                <span className="text-[#D3A479]">📍</span>
-                <span>DLF Cyber City, Tower B, Sector 24, Gurugram, HR 122002</span>
-              </li>
-              <li>
-                <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-[#D3A479]">📞</span>
-                  <span>+91 98765 43210</span>
-                </a>
-              </li>
-              <li>
-                <a href="mailto:contact@zvisory.com" className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-[#D3A479]">✉️</span>
-                  <span>contact@zvisory.com</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+            {/* X */}
+            <a
+              href="https://x.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="X (formerly Twitter)"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "transparent",
+                border: "1px solid #D3A479",
+                color: "#D3A479",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              𝕏
+            </a>
 
-          {/* Social Media & Legal Links */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-4">
-              Connect With Us
-            </h4>
-            <div className="flex items-center gap-3 mb-6">
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
-                aria-label="LinkedIn"
-              >
-                in
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
-                aria-label="Facebook"
-              >
-                f
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#D3A479] hover:text-[#124446] flex items-center justify-center font-bold text-xs transition-colors"
-                aria-label="Instagram"
-              >
-                ig
-              </a>
-            </div>
-
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#D3A479] mb-2">
-              Legal &amp; Policy
-            </h4>
-            <ul className="space-y-1.5 text-xs text-[#E6FFF1]/60">
-              <li><Link href="/about" className="hover:text-white">Privacy Policy</Link></li>
-              <li><Link href="/about" className="hover:text-white">Terms &amp; Conditions</Link></li>
-              <li><Link href="/about" className="hover:text-white">RERA Compliance Statement</Link></li>
-              <li><Link href="/about" className="hover:text-white">Disclaimers &amp; Fair Use</Link></li>
-            </ul>
+            {/* YouTube */}
+            <a
+              href="https://youtube.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="YouTube"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#D3A479",
+                color: "#124446",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              yt
+            </a>
           </div>
         </div>
 
-        {/* Bottom copyright */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#E6FFF1]/60 gap-4">
-          <div>
-            &copy; {new Date().getFullYear()} Zvisory Advisory Services Pvt. Ltd. All rights reserved.
+        {/* Quick Links */}
+        <div
+          style={{
+            width: 266,
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+          }}
+        >
+          <h3
+            style={{
+              margin: 0,
+              font: `600 24px/normal ${HK}`,
+              color: "#D3A479",
+            }}
+          >
+            Quick Links
+          </h3>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 20,
+              width: 263,
+              font: `400 16px/normal ${HK}`,
+              color: "#FFFFFF",
+            }}
+          >
+            {/* Col 1 */}
+            <div
+              style={{
+                width: 120,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              <Link href="/home-loan" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                HOME LOAN
+              </Link>
+              <Link href="/contact" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                CONTACT US
+              </Link>
+              <Link href="/blog" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                BLOGS
+              </Link>
+            </div>
+
+            {/* Col 2 */}
+            <div
+              style={{
+                width: 127,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              <Link href="/careers" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                CAREER
+              </Link>
+              <Link href="/about" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                ABOUT US
+              </Link>
+              <Link href="/search" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
+                PROPERTY TYPE
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span>ISO 9001:2015 Certified Advisory</span>
-            <span>•</span>
-            <span>RERA Registered Channel Partner</span>
+        </div>
+
+        {/* RERA Number */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            overflow: "clip",
+          }}
+        >
+          <h3
+            style={{
+              margin: 0,
+              font: `600 24px/normal ${HK}`,
+              color: "#D3A479",
+            }}
+          >
+            RERA Number
+          </h3>
+
+          <div
+            style={{
+              font: `400 16px/normal ${HK}`,
+              color: "#FFFFFF",
+              width: 301,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <span>DELHI-1251/310/AG/653203/001420</span>
+            <span>HARYANA-1251/310/AG/653203/001420</span>
+            <span>GOA-1251/310/AG/653203/001420</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Giant Logotype Band */}
+      <div
+        className="footer-logotype"
+        style={{
+          width: "100%",
+          height: 117,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          style={{
+            width: 1331,
+            textAlign: "center",
+            font: `600 132px/normal ${HK}`,
+            letterSpacing: "113.52px",
+            paddingRight: "113.52px",
+            background: "linear-gradient(to bottom, #FFFFFF 12.981%, #124446 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            display: "block",
+            userSelect: "none",
+          }}
+        >
+          ZVISORY
+        </span>
+      </div>
+
+      {/* Bottom Legal Bar */}
+      <div
+        className="footer-legal"
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          borderTop: "0.5px solid #D3A479",
+          padding: "22px 60px 12px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          font: `400 12px/normal ${HK}`,
+          color: "#D3A479",
+        }}
+      >
+        <span>&copy; 2026 Zvisory. All rights reserved.</span>
+
+        <div
+          style={{
+            display: "flex",
+            gap: 24,
+            alignItems: "center",
+          }}
+        >
+          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }} className="hover:underline">
+            Privacy Policy
+          </Link>
+          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }} className="hover:underline">
+            Terms of Use
+          </Link>
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              alignItems: "center",
+            }}
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#D3A479" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span>RERA Registered</span>
           </div>
         </div>
       </div>

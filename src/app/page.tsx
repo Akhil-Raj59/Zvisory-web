@@ -7,7 +7,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HomeHero } from "@/components/home/HomeHero";
 import { CityBrowseCircles } from "@/components/home/CityBrowseCircles";
-import { ProjectShowcaseSection } from "@/components/home/ProjectShowcaseSection";
 import { LovedByPeopleSection } from "@/components/home/LovedByPeopleSection";
 import { PropertyMarketInsights } from "@/components/home/PropertyMarketInsights";
 import { HomeDeveloperShowcase } from "@/components/home/HomeDeveloperShowcase";
@@ -58,11 +57,8 @@ export default async function HomePage() {
         {/* 2. Hero Section with Background & Floating Search Card */}
         <HomeHero cities={cities} developers={developers} />
 
-        {/* 3. Browse New Projects in India (Circular City Cards) */}
-        <CityBrowseCircles cities={cities} />
-
-        {/* 4. Project Showcase with Tabs & Interactive Project Cards */}
-        <ProjectShowcaseSection projects={featuredProjects} />
+        {/* 3. Browse New Projects in India (Circular City Cards, Tabs & Project Cards) */}
+        <CityBrowseCircles cities={cities} projects={featuredProjects} />
 
         {/* 5. Loved By People Testimonial Hero Card & 5 Stat Counters */}
         <LovedByPeopleSection testimonials={MOCK_TESTIMONIALS} />

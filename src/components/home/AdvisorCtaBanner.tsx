@@ -3,44 +3,102 @@
 import { useState } from "react";
 import { ContactModal } from "@/components/layout/ContactModal";
 
+const HK = '"Hanken Grotesk", system-ui, sans-serif';
+
 export function AdvisorCtaBanner() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
-      <section className="py-12 bg-[#F8FFFB]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#124446] text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-white/10">
-            {/* Background Glow Accents */}
-            <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-[#E6FFF1]/10 blur-2xl pointer-events-none" />
-            <div className="absolute right-0 top-0 w-80 h-80 rounded-full bg-[#D3A479]/10 blur-3xl pointer-events-none" />
+      <section
+        style={{
+          background: "#124446",
+          borderBottom: "0.3px solid #D3A479",
+          display: "flex",
+          gap: 60,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "64px 60px",
+          overflow: "clip",
+          boxSizing: "border-box",
+          width: "100%",
+        }}
+        className="advisor-callout"
+      >
+        <style>{`
+          @media (max-width: 900px) {
+            .advisor-callout {
+              flex-direction: column !important;
+              gap: 24px !important;
+              padding: 40px 24px !important;
+              text-align: center !important;
+            }
+            .advisor-copy {
+              align-items: center !important;
+              white-space: normal !important;
+            }
+          }
+        `}</style>
 
-            {/* Left Content */}
-            <div className="relative z-10 space-y-2 text-center md:text-left max-w-2xl">
-              <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#E6FFF1]/15 text-[#E6FFF1] border border-[#E6FFF1]/20">
-                Personalized Property Consultation
-              </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                Not sure which project is right for you?
-              </h2>
-              <p className="text-sm sm:text-base text-[#E6FFF1]/80 leading-relaxed font-normal">
-                Get unbiased advice, price insights, and a shortlist tailored specifically to your family&apos;s lifestyle and budget goals.
-              </p>
-            </div>
-
-            {/* Right Action Button */}
-            <div className="relative z-10 shrink-0">
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                className="px-8 py-4 rounded-2xl bg-[#D3A479] hover:bg-[#c29367] text-[#124446] font-extrabold text-sm sm:text-base shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <span>Speak to an Advisor</span>
-                <span className="text-lg leading-none">→</span>
-              </button>
-            </div>
-          </div>
+        {/* Copy block */}
+        <div
+          className="advisor-copy"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 6,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <b
+            style={{
+              font: `600 24px/normal ${HK}`,
+              color: "#FFFFFF",
+            }}
+          >
+            Not sure which project is right for you?
+          </b>
+          <span
+            style={{
+              font: `400 16px/normal ${HK}`,
+              color: "#D3A479",
+            }}
+          >
+            Get unbiased advice, price insights and a shortlist tailored to your needs.
+          </span>
         </div>
+
+        {/* Speak to an Advisor Button */}
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          style={{
+            height: 50,
+            padding: "0 20px",
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#D3A479",
+            border: "none",
+            borderRadius: 6,
+            color: "#124446",
+            font: `600 16px/normal ${HK}`,
+            cursor: "pointer",
+            flexShrink: 0,
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.08)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.filter = "none";
+          }}
+        >
+          <span>Speak to an Advisor</span>
+          <span style={{ fontSize: 16 }}>→</span>
+        </button>
       </section>
 
       {modalOpen && (
@@ -56,4 +114,3 @@ export function AdvisorCtaBanner() {
     </>
   );
 }
-

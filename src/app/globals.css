@@ -1,17 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #F8FFFB;
+  --foreground: #124446;
 
-  /* Client Color Palette */
-  --brand-teal: #124446;       /* Primary: Deep Teal Green */
-  --brand-tan: #D3A479;        /* Secondary: Warm Tan / Muted Orange */
-  --brand-dusty: #8693AB;      /* Accent 1: Dusty Blue-Grey */
-  --brand-ice: #BDD4E7;        /* Accent 2: Light Ice Blue */
-  --brand-slate: #6A6A86;      /* Accent 3: Slate Purple/Grey */
+  /* Figma design tokens */
+  --color-primary:   #F8FFFB;
+  --color-secondary: #124446;
+  --color-tertiary:  #557173;
+  --color-accent:    #D3A479;
+  --color-white:     #FFFFFF;
+  --color-secondary-20: rgba(18,68,70,0.20);
 
-  /* Approved Design Tokens from Figma System */
+  /* Legacy aliases kept for backward compat */
+  --brand-teal: #124446;
+  --brand-tan:  #D3A479;
   --color-mint: #E6FFF1;
   --color-mint-light: #F8FFFB;
   --color-teal: #124446;
@@ -24,37 +27,29 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-teal-primary: var(--brand-teal);
-  --color-tan-secondary: var(--brand-tan);
-  --color-dusty-blue: var(--brand-dusty);
-  --color-ice-blue: var(--brand-ice);
-  --color-slate-purple: var(--brand-slate);
 
-  /* Approved Design Tokens */
-  --color-brand-mint: var(--color-mint);
-  --color-brand-mint-light: var(--color-mint-light);
-  --color-brand-teal: var(--color-teal);
-  --color-brand-teal-dark: var(--color-teal-dark);
-  --color-brand-cyan-gray: var(--color-cyan-gray);
-  --color-brand-orange: var(--color-orange);
-  --color-brand-border: var(--color-border);
-
-  --font-sans: var(--font-plus-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-body: var(--font-hanken), "Hanken Grotesk", system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: var(--font-hanken, "Hanken Grotesk"), system-ui, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom horizontal scrollbar styling */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* Suppress horizontal scrollbar on marquee containers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Marquee animation for blog section */
+@keyframes marquee {
+  to { transform: translateX(calc(-1760px - 56px)); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}
