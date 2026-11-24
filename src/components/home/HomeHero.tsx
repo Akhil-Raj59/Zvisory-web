@@ -58,14 +58,62 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
   const [status, setStatus] = useState("All");
   const [budget, setBudget] = useState("All");
   const [developer, setDeveloper] = useState("All");
+  const [detectingLocation, setDetectingLocation] = useState(false);
+
+  function handleDetectCity() {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setDetectingLocation(false);
+        const { latitude, longitude } = pos.coords;
+        // Known active cities with coordinates
+        const cityCoords = [
+          { name: "Hyderabad", lat: 17.3850, lon: 78.4867 },
+          { name: "Bengaluru", lat: 12.9716, lon: 77.5946 },
+          { name: "Gurugram", lat: 28.4595, lon: 77.0266 },
+          { name: "Mumbai", lat: 19.0760, lon: 72.8777 },
+          { name: "Pune", lat: 18.5204, lon: 73.8567 },
+          { name: "Noida", lat: 28.5355, lon: 77.3910 },
+        ];
+        let closest = "Hyderabad";
+        let minDist = Infinity;
+        for (const c of cityCoords) {
+          const d = Math.hypot(c.lat - latitude, c.lon - longitude);
+          if (d < minDist) {
+            minDist = d;
+            closest = c.name;
+          }
+        }
+        setCity(closest);
+      },
+      (err) => {
+        setDetectingLocation(false);
+        console.warn("Geolocation denied or timed out:", err.message);
+        if (city === "All") {
+          setCity("Hyderabad");
+        }
+      },
+      { timeout: 8000 }
+    );
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (city && city !== "All") params.set("city", city);
     if (query.trim()) params.set("q", query.trim());
-    if (propertyType !== "All") params.set("type", propertyType);
-    if (bhk !== "All") params.set("bhk", bhk);
+    if (propertyType !== "All") {
+      params.set("propertyType", propertyType);
+      params.set("type", propertyType);
+    }
+    if (bhk !== "All") {
+      params.set("unitConfig", bhk);
+      params.set("bhk", bhk);
+    }
     if (status !== "All") params.set("status", status);
     if (budget !== "All") params.set("budget", budget);
     if (developer !== "All") params.set("developer", developer);
@@ -127,27 +175,36 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
         }
         @media (max-width: 900px) {
           .hero-search-wrapper {
-            width: 100%;
-            padding: 0 16px;
-            box-sizing: border-box;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 16px !important;
+            box-sizing: border-box !important;
           }
           .hero-heading-block {
-            width: 100%;
-            padding: 0 16px;
-            box-sizing: border-box;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 16px !important;
+            box-sizing: border-box !important;
+          }
+          .hero-filter-bar {
+            gap: 16px !important;
+            height: auto !important;
+            flex-wrap: wrap !important;
+            padding: 12px !important;
           }
         }
         @media (max-width: 768px) {
           .hero-section {
-            height: auto;
-            min-height: 600px;
-            gap: 32px;
-            padding: 48px 0;
+            height: auto !important;
+            min-height: 580px !important;
+            gap: 24px !important;
+            padding: 40px 0 !important;
           }
           .hero-top-bar {
             flex-direction: column !important;
             height: auto !important;
             gap: 10px !important;
+            width: 100% !important;
           }
           .hero-city-select {
             width: 100% !important;
@@ -161,14 +218,16 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
           .hero-filter-bar {
             height: auto !important;
             flex-wrap: wrap !important;
-            gap: 16px !important;
+            gap: 12px 20px !important;
+            justify-content: flex-start !important;
             padding: 12px !important;
+            width: 100% !important;
           }
           .hero-line1 {
-            font-size: 36px !important;
+            font-size: clamp(28px, 7vw, 48px) !important;
           }
           .hero-line2 {
-            font-size: 30px !important;
+            font-size: clamp(24px, 6vw, 40px) !important;
           }
         }
       `}</style>
@@ -318,8 +377,30 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 }}
               />
 
-              {/* Location pin */}
-              <LocationPin />
+              {/* Location pin with silent geolocation detection */}
+              <button
+                type="button"
+                onClick={handleDetectCity}
+                disabled={detectingLocation}
+                title={detectingLocation ? "Detecting nearest city..." : "Detect nearest city"}
+                aria-label="Detect nearest city"
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 4,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#557173",
+                  outline: "none",
+                  opacity: detectingLocation ? 0.4 : 1,
+                  transition: "opacity 0.2s ease",
+                  flexShrink: 0,
+                }}
+              >
+                <LocationPin />
+              </button>
 
               {/* Search button */}
               <button
@@ -389,10 +470,11 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                   style={filterSelectStyle}
                 >
                   <option value="All">Configuration</option>
+                  <option value="1 BHK">1 BHK</option>
                   <option value="2 BHK">2 BHK</option>
                   <option value="3 BHK">3 BHK</option>
                   <option value="4 BHK">4 BHK</option>
-                  <option value="5 BHK">5 BHK+</option>
+                  <option value="4+ BHK">4+ BHK</option>
                 </select>
                 <Caret />
               </label>
@@ -406,9 +488,11 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                   style={filterSelectStyle}
                 >
                   <option value="All">Status</option>
+                  <option value="Pre Launch">Pre Launch</option>
                   <option value="New Launch">New Launch</option>
                   <option value="Under Construction">Under Construction</option>
-                  <option value="Ready To Move-In">Ready To Move</option>
+                  <option value="Ready to move in (New)">Ready to move in (New)</option>
+                  <option value="Ready to move in (Re Sale)">Ready to move in (Re Sale)</option>
                 </select>
                 <Caret />
               </label>
@@ -422,10 +506,11 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                   style={filterSelectStyle}
                 >
                   <option value="All">Budget</option>
-                  <option value="Under 1.5 Cr">Under ₹1.5 Cr</option>
-                  <option value="1.5 - 3 Cr">₹1.5 – ₹3 Cr</option>
-                  <option value="3 - 5 Cr">₹3 – ₹5 Cr</option>
-                  <option value="Above 5 Cr">Above ₹5 Cr</option>
+                  <option value="Under 1 Cr">Under ₹1 Cr</option>
+                  <option value="1 – 2 Cr">₹1 – 2 Cr</option>
+                  <option value="2 – 3 Cr">₹2 – 3 Cr</option>
+                  <option value="3 – 5 Cr">₹3 – 5 Cr</option>
+                  <option value="5 Cr +">₹5 Cr +</option>
                 </select>
                 <Caret />
               </label>

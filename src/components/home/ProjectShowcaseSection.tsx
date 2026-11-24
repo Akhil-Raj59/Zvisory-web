@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Project } from "@/models/project";
 import { ContactModal, ContactModalProjectContext } from "@/components/layout/ContactModal";
@@ -9,65 +9,6 @@ const FALLBACK_PROJECT_IMG =
   "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80";
 
 const HK = '"Hanken Grotesk", system-ui, sans-serif';
-
-const FALLBACK_PROJECTS = [
-  {
-    id: "k-raheja-modern-vivarea",
-    slug: "k-raheja-modern-vivarea",
-    title: "K Raheja Modern Vivarea",
-    developer: "K Raheja Corp Homes",
-    location: "Mahalaxmi",
-    city: "South Mumbai",
-    unitType: ["3 & 4 BHK Residences"],
-    startingPrice: "9.10 Cr onwards",
-    possession: "Jun 2028",
-    unitSizes: "1500 - 3300 sq.ft.",
-    reraNumber: "P51900008345",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "birla-homes",
-    slug: "birla-homes",
-    title: "Birla Homes",
-    developer: "Birla Estates",
-    location: "South Hyderabad",
-    city: "Hyderabad",
-    unitType: ["2 & 3 BHK Residences"],
-    startingPrice: "5 Cr onwards",
-    possession: "Aug 2029",
-    unitSizes: "1000 - 1600 sq.ft.",
-    reraNumber: "P02400001234",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "godrej-horizon",
-    slug: "godrej-horizon",
-    title: "Godrej Horizon",
-    developer: "Godrej Properties",
-    location: "Dadar, Mumbai",
-    city: "Mumbai",
-    unitType: ["2 & 3 BHK Residences"],
-    startingPrice: "3.50 Cr onwards",
-    possession: "Dec 2027",
-    unitSizes: "1100 - 1800 sq.ft.",
-    reraNumber: "P51900034821",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "dlf-the-arbour",
-    slug: "dlf-the-arbour",
-    title: "DLF The Arbour",
-    developer: "DLF",
-    location: "Sector 63",
-    city: "Gurugram",
-    unitType: ["4 BHK Luxury Residences"],
-    startingPrice: "8.50 Cr onwards",
-    possession: "Mid 2028",
-    unitSizes: "3950 sq.ft.",
-    reraNumber: "RC/REP/HARERA/GGM/680/412/2023/24",
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
-  },
-];
 
 interface ProjectShowcaseSectionProps {
   projects: Project[];
@@ -104,20 +45,47 @@ function CheckIcon() {
 }
 
 export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowcaseSectionProps) {
-  const [comparedSlugs, setComparedSlugs] = useState<Record<string, boolean>>({});
+  const [comparedSlugs, setComparedSlugs] = useState<string[]>([]);
   const [selectedProjectForEnquiry, setSelectedProjectForEnquiry] =
     useState<ContactModalProjectContext | null>(null);
 
-  const sourceProjects =
-    projects && projects.length > 0
-      ? projects
-      : (FALLBACK_PROJECTS as unknown as Project[]);
+  // Sync compared projects with localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("zvisory_compare_projects");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setComparedSlugs(parsed);
+        }
+      }
+    } catch {
+      // Ignore localStorage error
+    }
+  }, []);
+
+  const sourceProjects = Array.isArray(projects) ? projects : [];
   const displayedProjects = sourceProjects.slice(0, 6);
   const primaryCity = selectedCity || sourceProjects?.[0]?.city || "Hyderabad";
-  const projectCount = sourceProjects?.length || 0;
+  const projectCount = sourceProjects.length;
 
   function toggleCompare(slug: string) {
-    setComparedSlugs((prev) => ({ ...prev, [slug]: !prev[slug] }));
+    let next: string[];
+    if (comparedSlugs.includes(slug)) {
+      next = comparedSlugs.filter((s) => s !== slug);
+    } else {
+      if (comparedSlugs.length >= 3) {
+        alert("You can compare up to 3 projects at a time.");
+        return;
+      }
+      next = [...comparedSlugs, slug];
+    }
+    setComparedSlugs(next);
+    try {
+      localStorage.setItem("zvisory_compare_projects", JSON.stringify(next));
+    } catch {
+      // Ignore localStorage write error
+    }
   }
 
   function openEnquiry(project: Project) {
@@ -138,8 +106,8 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
 
   return (
     <>
-      <div style={{ width: "100%" }}>
-        {/* Horizontal scroll row */}
+      <div style={{ width: "100%", position: "relative" }}>
+        {/* Horizontal scroll row with responsive stacking */}
         <div
           className="city-cards-row"
           style={{
@@ -153,8 +121,42 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
           }}
         >
           <style>{`
+            @media (max-width: 1024px) {
+              .city-cards-row {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+                gap: 24px !important;
+              }
+            }
             @media (max-width: 767px) {
-              .city-cards-row { padding-left: 16px !important; }
+              .city-cards-row {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                overflow-x: visible !important;
+                gap: 24px !important;
+              }
+              .project-card {
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+              .project-card-img {
+                width: 100% !important;
+                height: 220px !important;
+              }
+              .project-card-actions {
+                flex-direction: column !important;
+                gap: 10px !important;
+                width: 100% !important;
+              }
+              .project-card-actions a,
+              .project-card-actions button {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 0 16px !important;
+                box-sizing: border-box !important;
+              }
             }
             .city-cards-row::-webkit-scrollbar { display: none; }
             .city-cards-row { -ms-overflow-style: none; scrollbar-width: none; }
@@ -163,18 +165,20 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
           {displayedProjects.length === 0 ? (
             <div
               style={{
-                padding: "48px 150px",
+                padding: "48px 24px",
                 color: "#557173",
                 fontFamily: HK,
                 fontSize: 16,
+                textAlign: "center",
+                width: "100%",
               }}
             >
               No projects found for {primaryCity}.
             </div>
           ) : (
             displayedProjects.map((project) => {
-              const isCompared = Boolean(comparedSlugs[project.slug]);
-              const imgSrc = project.image || project.bannerUrl || FALLBACK_PROJECT_IMG;
+              const isCompared = comparedSlugs.includes(project.slug);
+              const imgSrc = project.image || project.cardBanner || project.bannerUrl || FALLBACK_PROJECT_IMG;
               const unitTypeText = Array.isArray(project.unitType)
                 ? project.unitType.join(", ")
                 : project.unitType || project.propertyType || "";
@@ -182,8 +186,10 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
               return (
                 <div
                   key={project.slug || project.id}
+                  className="project-card"
                   style={{
                     width: 608,
+                    maxWidth: "100%",
                     flexShrink: 0,
                     background: "#FFFFFF",
                     borderRadius: 20,
@@ -191,6 +197,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                     display: "flex",
                     flexDirection: "column",
                     gap: 16,
+                    overflow: "hidden",
                   }}
                 >
                   {/* Card image */}
@@ -198,8 +205,9 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                   <img
                     src={imgSrc}
                     alt={project.title}
+                    className="project-card-img"
                     style={{
-                      width: 608,
+                      width: "100%",
                       height: 342,
                       borderRadius: "20px 20px 0 0",
                       objectFit: "cover",
@@ -233,7 +241,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                           style={{
                             font: `600 24px/normal ${HK}`,
                             color: "#124446",
-                            width: 276,
+                            width: "70%",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -301,7 +309,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                       <span
                         style={{
                           background: "rgba(18,68,70,0.2)",
-                          padding: 4,
+                          padding: "4px 8px",
                           borderRadius: 4,
                           font: `600 20px ${HK}`,
                           color: "#124446",
@@ -338,6 +346,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
 
                     {/* Buttons row */}
                     <div
+                      className="project-card-actions"
                       style={{
                         display: "flex",
                         gap: 18,
@@ -417,7 +426,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                             flexShrink: 0,
                           }}
                         />
-                        Compare
+                        {isCompared ? "✓ Comparing" : "Compare"}
                       </button>
                     </div>
                   </div>
@@ -450,6 +459,44 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
             <span>→</span>
           </Link>
         </div>
+
+        {/* Compare floating badge if projects are selected */}
+        {comparedSlugs.length > 0 && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 24,
+              right: 24,
+              zIndex: 40,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "10px 18px",
+              background: "#124446",
+              color: "#F8FFFB",
+              borderRadius: 9999,
+              boxShadow: "0 8px 24px rgba(18,68,70,0.35)",
+            }}
+          >
+            <span style={{ font: `600 13px ${HK}` }}>
+              Comparing {comparedSlugs.length}/3 projects
+            </span>
+            <Link
+              href="/search?compare=true"
+              style={{
+                background: "#D3A479",
+                color: "#124446",
+                padding: "6px 14px",
+                borderRadius: 9999,
+                font: `700 11px ${HK}`,
+                textDecoration: "none",
+                textTransform: "uppercase",
+              }}
+            >
+              Compare Now →
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* ContactModal */}

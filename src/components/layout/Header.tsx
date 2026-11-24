@@ -48,11 +48,11 @@ export function Header({
       >
         {/* ── DESKTOP LAYOUT (lg+) ── */}
         <div
-          className="hidden lg:flex items-center justify-center"
+          className="hidden lg:flex items-center justify-center px-6 lg:px-10 xl:px-[150px]"
           style={{
-            padding: "20px 150px",
             height: "97px",
             boxSizing: "border-box",
+            width: "100%",
           }}
         >
           {/* Inner row */}

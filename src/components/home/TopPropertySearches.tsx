@@ -67,9 +67,16 @@ export function TopPropertySearches() {
       className="links-section"
     >
       <style>{`
+        @media (max-width: 1440px) {
+          .links-section { padding: 48px 48px 56px !important; }
+        }
         @media (max-width: 1024px) {
           .links-section { padding: 40px 24px 48px !important; gap: 32px !important; }
           .links-grid { flex-direction: column !important; gap: 24px !important; }
+        }
+        @media (max-width: 768px) {
+          .links-section { padding: 32px 16px 40px !important; }
+          .links-grid { white-space: normal !important; gap: 20px !important; }
         }
       `}</style>
 

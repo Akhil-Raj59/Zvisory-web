@@ -41,13 +41,34 @@ function SearchContent() {
   const [propertyType, setPropertyType] = useState(
     searchParams.get("propertyType") || searchParams.get("type") || "All"
   );
-  const [unitConfig, setUnitConfig] = useState(searchParams.get("unitConfig") || "All");
+  const [unitConfig, setUnitConfig] = useState(
+    searchParams.get("unitConfig") || searchParams.get("bhk") || "All"
+  );
+  const [status, setStatus] = useState(searchParams.get("status") || "All");
   const [budget, setBudget] = useState(searchParams.get("budget") || "All");
   const [sortBy, setSortBy] = useState("default");
 
-  // Compare state (up to 3 projects)
+  // Compare state (up to 3 projects, persistent in localStorage)
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [compareModalOpen, setCompareModalOpen] = useState(false);
+
+  // Initialize compare list from localStorage and handle ?compare=true URL param
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("zvisory_compare_projects");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSelectedForCompare(parsed.slice(0, 3));
+          if (searchParams.get("compare") === "true") {
+            setCompareModalOpen(true);
+          }
+        }
+      }
+    } catch {
+      // Ignore localStorage read errors
+    }
+  }, [searchParams]);
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -63,6 +84,13 @@ function SearchContent() {
   }, []);
 
   const BUDGET_RANGES = ["Under 1 Cr", "1 – 2 Cr", "2 – 3 Cr", "3 – 5 Cr", "5 Cr +"];
+  const STATUS_OPTIONS = [
+    "Pre Launch",
+    "New Launch",
+    "Under Construction",
+    "Ready to move in (New)",
+    "Ready to move in (Re Sale)",
+  ];
 
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
 
@@ -79,6 +107,7 @@ function SearchContent() {
             developer,
             propertyType,
             unitConfig,
+            status,
             budget,
             page,
             limit: 12,
@@ -95,7 +124,7 @@ function SearchContent() {
       }
     }
     fetchProjects();
-  }, [query, city, category, developer, propertyType, unitConfig, budget, sortBy, page]);
+  }, [query, city, category, developer, propertyType, unitConfig, status, budget, sortBy, page]);
 
   const comparedProjects = useMemo(
     () => filteredProjects.filter((p) => selectedForCompare.includes(p.slug)),
@@ -103,14 +132,21 @@ function SearchContent() {
   );
 
   function toggleCompare(slug: string) {
+    let next: string[];
     if (selectedForCompare.includes(slug)) {
-      setSelectedForCompare(selectedForCompare.filter((s) => s !== slug));
+      next = selectedForCompare.filter((s) => s !== slug);
     } else {
       if (selectedForCompare.length >= 3) {
         alert("You can compare up to 3 projects at a time.");
         return;
       }
-      setSelectedForCompare([...selectedForCompare, slug]);
+      next = [...selectedForCompare, slug];
+    }
+    setSelectedForCompare(next);
+    try {
+      localStorage.setItem("zvisory_compare_projects", JSON.stringify(next));
+    } catch {
+      // Ignore localStorage write error
     }
   }
 
@@ -121,12 +157,13 @@ function SearchContent() {
     setDeveloper("All");
     setPropertyType("All");
     setUnitConfig("All");
+    setStatus("All");
     setBudget("All");
     setSortBy("default");
     setPage(1);
   }
 
-  const activeFilterCount = [city, category, developer, propertyType, unitConfig, budget].filter(
+  const activeFilterCount = [city, category, developer, propertyType, unitConfig, status, budget].filter(
     (v) => v !== "All"
   ).length + (query.trim() ? 1 : 0);
 
@@ -531,6 +568,13 @@ function SearchContent() {
                 onChange={setUnitConfig}
                 options={filterOptions.unitConfigs}
                 allLabel="All Configurations"
+              />
+              <FilterSelect
+                label="Construction Status"
+                value={status}
+                onChange={setStatus}
+                options={STATUS_OPTIONS}
+                allLabel="All Statuses"
               />
               <div>
                 <label className="block font-bold uppercase text-slate-500 mb-1">Budget</label>

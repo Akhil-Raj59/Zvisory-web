@@ -408,47 +408,98 @@ export function LovedByPeopleSection({
         /* Desktop defaults */
         .testimonial-band {
           padding: 72px 150px 0;
+          box-sizing: border-box;
+          width: 100%;
         }
         .testimonial-inner-row {
           flex-direction: row;
+          gap: 40px;
         }
         .testimonial-left-col {
-          width: 619px;
+          flex: 1;
+          max-width: 619px;
         }
         .testimonial-right-img {
           width: 813px;
+          max-width: 50%;
           height: 408px;
         }
         .stats-band {
-          padding: 56px 0 72px;
+          padding: 56px 24px 72px;
           gap: 68px;
           flex-wrap: nowrap;
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        /* Large Laptops / Tablets (1024px - 1440px) */
+        @media (max-width: 1440px) {
+          .testimonial-band {
+            padding: 56px 48px 0 !important;
+          }
+          .testimonial-right-img {
+            max-width: 48% !important;
+            height: 340px !important;
+          }
+          .stats-band {
+            padding: 48px 24px 60px !important;
+            gap: 28px !important;
+            flex-wrap: wrap !important;
+          }
+        }
+
+        /* Medium Tablets (768px - 1024px) */
+        @media (max-width: 1024px) {
+          .testimonial-band {
+            padding: 48px 24px 0 !important;
+          }
+          .testimonial-inner-row {
+            flex-direction: column !important;
+            gap: 32px !important;
+          }
+          .testimonial-left-col {
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+          .testimonial-right-img {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 280px !important;
+          }
+          .stats-band {
+            gap: 20px !important;
+          }
         }
 
         /* Mobile (<768px) */
         @media (max-width: 767px) {
           .testimonial-band {
-            padding: 48px 24px 0;
+            padding: 40px 16px 0 !important;
           }
           .testimonial-inner-row {
-            flex-direction: column;
-            gap: 32px;
+            flex-direction: column !important;
+            gap: 24px !important;
           }
           .testimonial-left-col {
-            width: 100%;
+            width: 100% !important;
           }
           .testimonial-right-img {
-            width: 100%;
-            height: 220px;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 220px !important;
           }
           .stats-band {
-            padding: 40px 24px 56px;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
+            padding: 36px 16px 48px !important;
+            gap: 12px !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
           }
           .stat-card {
-            min-width: calc(45% - 8px);
+            min-width: calc(50% - 8px) !important;
+            max-width: calc(50% - 8px) !important;
+            flex: 1 1 calc(50% - 8px) !important;
+            box-sizing: border-box !important;
+            padding: 14px 10px !important;
           }
         }
       `}</style>

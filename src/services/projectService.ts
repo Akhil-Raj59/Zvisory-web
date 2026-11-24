@@ -1,7 +1,7 @@
 import rawProjectsData from "@/data/excel_projects_raw.json";
 import { Project } from "@/models/project";
 import { normalizeExcelRecord } from "./projectNormalizer";
-import { backendApi } from "@/lib/api";
+import { backendApi, ApiError } from "@/lib/api";
 
 // Local fallback normalization from Excel JSON (for offline build resilience).
 // WARNING: This is a DEVELOPMENT FALLBACK only. If backend is running correctly
@@ -265,6 +265,11 @@ export const projectService = {
         return mapDbProjectToClientProject(res.data);
       }
     } catch (err) {
+      // If the backend returned a 404, it means the project truly does not exist.
+      // Do not warn or use fallback in this case.
+      if (err instanceof ApiError && err.statusCode === 404) {
+        return null;
+      }
       console.warn(
         '[DEV_USING_FALLBACK] projectService.getProjectBySlug: backend unavailable for slug',
         cleanSlug,

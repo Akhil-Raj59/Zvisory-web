@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { City } from "@/models/city";
 import { ProjectShowcaseSection } from "./ProjectShowcaseSection";
 import type { Project } from "@/models/project";
+import { projectService } from "@/services/projectService";
 
 const CITY_FALLBACK_IMAGES: Record<string, string> = {
   Gurugram: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=400&q=80",
@@ -47,32 +48,72 @@ const PJS = '"Plus Jakarta Sans", sans-serif';
 export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesProps) {
   const displayCities = cities && cities.length > 0 ? cities : DEFAULT_CITIES;
 
-  const [selectedCity, setSelectedCity] = useState<string>(displayCities[0]?.name ?? "");
+  // Hyderabad is selected by default as required by wireframe
+  const defaultCityName =
+    displayCities.find((c) => c.name.toLowerCase() === "hyderabad")?.name ||
+    displayCities[0]?.name ||
+    "Hyderabad";
+
+  const [selectedCity, setSelectedCity] = useState<string>(defaultCityName);
   const [activeTab, setActiveTab] = useState<TabKey>("new_projects");
+  const [cityProjects, setCityProjects] = useState<Project[]>(projects);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch real projects from backend whenever selectedCity changes
+  useEffect(() => {
+    let active = true;
+    async function loadCityProjects() {
+      if (!selectedCity) return;
+      setLoading(true);
+      try {
+        const res = await projectService.getAllProjects({ city: selectedCity, limit: 12 });
+        if (active) {
+          if (res && res.length > 0) {
+            setCityProjects(res);
+          } else {
+            setCityProjects([]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load projects for city", selectedCity, err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    loadCityProjects();
+    return () => {
+      active = false;
+    };
+  }, [selectedCity]);
 
   // Filter projects by selected city + active tab
   const filteredProjects = (() => {
-    let base = projects.filter(
+    let base = [...cityProjects];
+
+    // Filter projects matching city (case-insensitive) if available
+    const cityFiltered = base.filter(
       (p) => p.city?.toLowerCase() === selectedCity.toLowerCase()
     );
-
-    // If no projects found specifically for this city in live data, show all fetched projects
-    if (base.length === 0 && projects.length > 0) {
-      base = projects;
+    if (cityFiltered.length > 0) {
+      base = cityFiltered;
     }
 
     switch (activeTab) {
       case "ready_to_move":
         base = base.filter(
           (p) =>
-            p.status?.toLowerCase().includes("ready") ||
-            p.possession?.toLowerCase().includes("ready")
+            /ready/i.test(p.status || "") ||
+            /ready/i.test(p.possession || "")
         );
         break;
       case "top_developers":
         base = [...base].sort((a, b) => {
-          const aTop = /dlf|godrej|prestige|sobha|oberoi/i.test(a.developer || "");
-          const bTop = /dlf|godrej|prestige|sobha|oberoi/i.test(b.developer || "");
+          const aTop = /dlf|godrej|prestige|brigade|sobha|oberoi|birla|myscape|asbl/i.test(
+            a.developer || ""
+          );
+          const bTop = /dlf|godrej|prestige|brigade|sobha|oberoi|birla|myscape|asbl/i.test(
+            b.developer || ""
+          );
           return aTop === bTop ? 0 : aTop ? -1 : 1;
         });
         break;
@@ -81,6 +122,12 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
         break;
       case "new_projects":
       default:
+        // Sort by launch status or newest
+        base = [...base].sort((a, b) => {
+          const aNew = /new|pre/i.test(a.status || "");
+          const bNew = /new|pre/i.test(b.status || "");
+          return aNew === bNew ? 0 : aNew ? -1 : 1;
+        });
         break;
     }
     return base;
@@ -96,8 +143,36 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
         alignItems: "center",
         padding: "64px 0 72px",
         width: "100%",
+        boxSizing: "border-box",
+        overflow: "hidden",
       }}
     >
+      <style>{`
+        .city-chips-container::-webkit-scrollbar { display: none; }
+        .city-chips-container { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (max-width: 900px) {
+          .city-chips-container {
+            justify-content: flex-start !important;
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            gap: 20px !important;
+            padding: 8px 16px !important;
+          }
+          .city-tabs-row {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            width: 100% !important;
+            justify-content: flex-start !important;
+            padding: 12px 16px !important;
+            gap: 16px !important;
+          }
+          .city-tabs-row button {
+            font-size: 18px !important;
+            padding: 8px 12px !important;
+            white-space: nowrap !important;
+          }
+        }
+      `}</style>
       {/* Heading */}
       <h2
         style={{
@@ -113,6 +188,7 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
 
       {/* City chips row */}
       <div
+        className="city-chips-container"
         style={{
           display: "flex",
           gap: 40,
@@ -183,6 +259,7 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
 
       {/* Tabs row */}
       <div
+        className="city-tabs-row"
         style={{
           display: "flex",
           gap: 36,

@@ -16,6 +16,18 @@ export function Footer() {
       }}
     >
       <style>{`
+        @media (max-width: 1440px) {
+          .footer-main {
+            padding: 48px 48px 36px !important;
+          }
+          .footer-logotype span {
+            width: 100% !important;
+            max-width: 100% !important;
+            font-size: clamp(48px, 7.5vw, 110px) !important;
+            letter-spacing: clamp(16px, 3.5vw, 55px) !important;
+            padding-right: clamp(16px, 3.5vw, 55px) !important;
+          }
+        }
         @media (max-width: 1024px) {
           .footer-main {
             padding: 40px 24px 32px !important;
@@ -26,16 +38,27 @@ export function Footer() {
             width: 100% !important;
           }
           .footer-logotype span {
-            font-size: clamp(36px, 9vw, 96px) !important;
-            letter-spacing: clamp(8px, 3vw, 40px) !important;
-            padding-right: clamp(8px, 3vw, 40px) !important;
-            width: auto !important;
+            font-size: clamp(36px, 8.5vw, 84px) !important;
+            letter-spacing: clamp(8px, 2.8vw, 32px) !important;
+            padding-right: clamp(8px, 2.8vw, 32px) !important;
+            width: 100% !important;
           }
           .footer-legal {
             padding: 16px 24px !important;
             flex-direction: column !important;
             gap: 12px !important;
             text-align: center !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .footer-main {
+            padding: 32px 16px 24px !important;
+            gap: 28px !important;
+          }
+          .footer-logotype span {
+            font-size: clamp(24px, 7.5vw, 48px) !important;
+            letter-spacing: clamp(4px, 2vw, 14px) !important;
+            padding-right: clamp(4px, 2vw, 14px) !important;
           }
         }
       `}</style>
