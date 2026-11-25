@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ContactModal } from "./ContactModal";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -48,9 +49,9 @@ export function Header({
       >
         {/* ── DESKTOP LAYOUT (lg+) ── */}
         <div
-          className="hidden lg:flex items-center justify-center px-6 lg:px-10 xl:px-[150px]"
+          className="hidden lg:flex items-center justify-center px-6 lg:px-12 xl:px-[120px]"
           style={{
-            height: "97px",
+            height: "79px",
             boxSizing: "border-box",
             width: "100%",
           }}
@@ -64,42 +65,24 @@ export function Header({
               width: "100%",
             }}
           >
-            {/* Logo — 171×57 area, text-based */}
+            {/* Logo — 120×40 Figma original */}
             <Link
               href="/"
+              className="flex items-center"
               style={{
-                display: "flex",
-                flexDirection: "column",
-                width: 171,
-                height: 57,
-                justifyContent: "center",
+                width: 120,
+                height: 40,
                 textDecoration: "none",
               }}
             >
-              <span
-                style={{
-                  ...hankenFont,
-                  fontWeight: 600,
-                  fontSize: 24,
-                  color: "#F8FFFB",
-                  lineHeight: 1.2,
-                }}
-              >
-                ZVISORY
-              </span>
-              <span
-                style={{
-                  ...hankenFont,
-                  fontSize: 10,
-                  letterSpacing: "0.15em",
-                  color: "#D3A479",
-                  textTransform: "uppercase",
-                  fontWeight: 500,
-                  lineHeight: 1.4,
-                }}
-              >
-                REAL ESTATE, REAL ADVICE
-              </span>
+              <Image
+                src="/figma-assets/Header+ banner/Zvisory logo 1.svg"
+                alt="Zvisory"
+                width={120}
+                height={40}
+                priority
+                style={{ objectFit: "contain", width: 120, height: 40 }}
+              />
             </Link>
 
             {/* Nav links */}
@@ -179,14 +162,14 @@ export function Header({
                 onClick={() => setContactModalOpen(true)}
                 style={{
                   ...hankenFont,
-                  width: 149,
-                  height: 52,
+                  width: 125,
+                  height: 47,
                   padding: "12px 16px",
                   border: "1px solid #F8FFFB",
                   borderRadius: 6,
                   background: "transparent",
-                  fontWeight: 600,
-                  fontSize: 20,
+                  fontWeight: 400,
+                  fontSize: 16,
                   color: "#F8FFFB",
                   cursor: "pointer",
                   boxSizing: "border-box",
@@ -326,27 +309,24 @@ export function Header({
         </div>
 
         {/* ── MOBILE LAYOUT (<lg) ── */}
-        <div className="flex lg:hidden items-center justify-between px-4 h-20">
+        <div className="flex lg:hidden items-center justify-between px-4 h-[52px]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#D3A479] flex items-center justify-center text-[#124446] font-black text-xl shadow-inner group-hover:scale-105 transition-transform">
-              Z
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tight text-white leading-none">
-                ZVISORY
-              </span>
-              <span className="text-[9px] tracking-widest text-[#D3A479] uppercase font-bold mt-0.5">
-                Real Estate Advisors
-              </span>
-            </div>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/figma-assets/Header+ banner/Zvisory logo 1.svg"
+              alt="Zvisory"
+              width={90}
+              height={28}
+              priority
+              style={{ objectFit: "contain", width: 90, height: 28 }}
+            />
           </Link>
 
           {/* Mobile Right Controls: Bookmark + Hamburger */}
           <div className="flex items-center gap-2">
             <Link
               href="/search?saved=true"
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white"
               aria-label="Saved Projects"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +336,7 @@ export function Header({
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-white hover:bg-white/10 focus:outline-none"
+              className="p-1.5 rounded-lg text-white hover:bg-white/10 focus:outline-none"
               aria-label="Toggle Navigation Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

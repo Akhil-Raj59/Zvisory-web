@@ -11,12 +11,17 @@ const DEFAULT_DEVELOPERS: { name: string; slug: string; logo?: string }[] = [
   {
     name: "Prestige Group",
     slug: "prestige-group",
-    logo: "https://images.seeklogo.com/logo-png/43/1/prestige-group-logo-png_seeklogo-431872.png",
+    logo: "/figma-assets/Top developers/eagle_and_circle_(Prestige).png",
   },
   {
     name: "Godrej Properties",
     slug: "godrej-properties",
-    logo: "https://images.seeklogo.com/logo-png/24/1/godrej-properties-logo-png_seeklogo-249539.png",
+    logo: "/figma-assets/Top developers/godrej-properties-seeklogo.png",
+  },
+  {
+    name: "Birla Estates",
+    slug: "birla-estates",
+    logo: "/figma-assets/Top developers/Birla.svg",
   },
   {
     name: "DLF",
@@ -29,10 +34,6 @@ const DEFAULT_DEVELOPERS: { name: string; slug: string; logo?: string }[] = [
   {
     name: "Oberoi Realty",
     slug: "oberoi-realty",
-  },
-  {
-    name: "Tata Housing",
-    slug: "tata-housing",
   },
   {
     name: "Brigade Group",
@@ -69,8 +70,8 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
         }));
 
   const totalDevs = devList.length;
-  // Display 4 cards visible at a time on desktop
-  const VISIBLE_COUNT = 4;
+  // Display 5 or 6 cards visible at a time on desktop
+  const VISIBLE_COUNT = 5;
   const maxIndex = Math.max(0, totalDevs - VISIBLE_COUNT);
 
   function handlePrev() {
@@ -97,7 +98,7 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
   }
 
   const visibleDevs = devList.slice(startIndex, startIndex + VISIBLE_COUNT);
-  // Wrap around if needed to always show 4
+  // Wrap around if needed to always show VISIBLE_COUNT
   if (visibleDevs.length < VISIBLE_COUNT && totalDevs >= VISIBLE_COUNT) {
     visibleDevs.push(...devList.slice(0, VISIBLE_COUNT - visibleDevs.length));
   }
@@ -106,7 +107,7 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
     <section
       style={{
         background: "#124446",
-        padding: "64px 150px 72px",
+        padding: "64px 120px 72px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -124,14 +125,27 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
         @media (max-width: 1024px) {
           .devs-section { padding: 48px 24px 56px !important; gap: 32px !important; }
           .devs-carousel { width: 100% !important; gap: 16px !important; }
-          .devs-row { flex-wrap: wrap !important; justify-content: center !important; gap: 20px !important; }
+          .devs-row { overflow-x: auto !important; flex-wrap: nowrap !important; justify-content: flex-start !important; gap: 16px !important; }
         }
         @media (max-width: 768px) {
           .devs-section { padding: 36px 16px 44px !important; gap: 24px !important; }
+          .devs-carousel { padding: 0 !important; width: 100% !important; }
+          .devs-carousel button { display: none !important; }
+          .devs-row {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+            padding: 8px 0 !important;
+            scroll-snap-type: x mandatory;
+          }
+          .devs-row::-webkit-scrollbar { display: none; }
+          .devs-row { -ms-overflow-style: none; scrollbar-width: none; }
           .devs-card {
-            width: 260px !important;
-            height: 260px !important;
-            padding: 12px !important;
+            width: 180px !important;
+            height: 190px !important;
+            padding: 8px !important;
+            scroll-snap-align: start;
           }
         }
       `}</style>
@@ -140,7 +154,7 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
       <h2
         style={{
           margin: 0,
-          font: `600 32px/normal ${PJS}`,
+          font: `600 32px/40px ${PJS}`,
           color: "#F8FFFB",
           textAlign: "center",
           whiteSpace: "pre-wrap",
@@ -155,12 +169,12 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={{
-          width: 1544,
-          maxWidth: "100%",
+          width: "100%",
+          maxWidth: 1581,
           display: "flex",
           alignItems: "center",
-          gap: 28,
-          padding: "8px 0 16px",
+          gap: 24,
+          padding: "8px 0",
           justifyContent: "center",
         }}
       >
@@ -170,8 +184,8 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
           onClick={handlePrev}
           aria-label="Previous developers"
           style={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             borderRadius: "50%",
             border: "1.5px solid #D3A479",
             background: "transparent",
@@ -181,7 +195,7 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
             justifyContent: "center",
             cursor: "pointer",
             flexShrink: 0,
-            fontSize: 16,
+            fontSize: 18,
             transition: "all 0.2s ease",
           }}
           onMouseEnter={(e) => {
@@ -194,14 +208,16 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
           ←
         </button>
 
-        {/* 4 Developer Tiles Row */}
+        {/* Developer Tiles Row */}
         <div
           className="devs-row"
           style={{
             display: "flex",
-            gap: 40,
+            gap: 24,
             justifyContent: "center",
+            alignItems: "center",
             flex: 1,
+            overflow: "hidden",
           }}
         >
           {visibleDevs.map((dev, idx) => {
@@ -212,16 +228,14 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
                 href={`/developers/${dev.slug}`}
                 className="devs-card"
                 style={{
-                  width: 326,
-                  height: 303,
+                  width: 217,
+                  height: 221,
                   boxSizing: "border-box",
-                  background: isHovered ? "#FFFFFF" : "#F8FFFB",
-                  border: isHovered ? "1.5px solid #124446" : "1px solid #D3A479",
+                  background: isHovered ? "#FFFFFF" : "#124446",
+                  border: "0.5px solid #D3A479",
                   borderRadius: 8,
-                  padding: 16,
-                  filter: isHovered
-                    ? "drop-shadow(0 8px 16px rgba(0,0,0,0.2))"
-                    : "drop-shadow(0 4px 3px rgba(0,0,0,0.25))",
+                  padding: 8,
+                  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -235,73 +249,93 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
               >
-                {/* Standard View */}
-                {dev.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={dev.logo}
-                    alt={dev.name}
-                    style={{
-                      width: 292,
-                      height: 110,
-                      objectFit: "contain",
-                      transition: "transform 0.2s ease",
-                      transform: isHovered ? "scale(0.95)" : "scale(1)",
-                    }}
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
-                ) : null}
+                {/* Logo Image */}
+                <div
+                  style={{
+                    width: 200,
+                    height: 95,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: isHovered ? "transparent" : "#FFFFFF",
+                    borderRadius: 6,
+                    padding: 8,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {dev.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={dev.logo}
+                      alt={dev.name}
+                      style={{
+                        maxWidth: 180,
+                        maxHeight: 75,
+                        objectFit: "contain",
+                        transition: "transform 0.2s ease",
+                        transform: isHovered ? "scale(1.05)" : "scale(1)",
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <span
+                      style={{
+                        font: `600 18px ${HK}`,
+                        color: "#124446",
+                        textAlign: "center",
+                      }}
+                    >
+                      {dev.name}
+                    </span>
+                  )}
+                </div>
 
                 {/* Developer Name text */}
                 <span
                   style={{
-                    font: `600 22px/normal ${HK}`,
-                    color: "#124446",
+                    font: `600 18px/23px ${HK}`,
+                    color: isHovered ? "#124446" : "#F8FFFB",
                     textAlign: "center",
-                    marginTop: dev.logo ? 8 : 0,
-                    maxWidth: 292,
+                    marginTop: 8,
+                    maxWidth: 190,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {dev.name}
                 </span>
 
-                {/* Hover Details view (project count, min price, view projects link) */}
+                {/* Details view (project count, view projects link) */}
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: 6,
-                    marginTop: 10,
-                    opacity: isHovered ? 1 : 0.85,
-                    transition: "opacity 0.2s ease",
+                    marginTop: 6,
                   }}
                 >
                   <span
                     style={{
-                      font: `500 12px ${HK}`,
-                      color: "#557173",
-                      background: "rgba(18,68,70,0.08)",
-                      padding: "2px 8px",
-                      borderRadius: 4,
+                      font: `400 12px/16px ${HK}`,
+                      color: isHovered ? "#557173" : "#D3A479",
                     }}
                   >
-                    {dev.projectCount} Projects · From ₹{dev.minPrice}
+                    {dev.projectCount} Projects
                   </span>
-
                   <span
                     style={{
-                      font: `600 13px ${HK}`,
+                      font: `400 12px ${HK}`,
                       color: isHovered ? "#124446" : "#D3A479",
                       display: "flex",
                       alignItems: "center",
-                      gap: 4,
-                      marginTop: 2,
+                      gap: 2,
                     }}
                   >
-                    View Projects →
+                    View →
                   </span>
                 </div>
               </Link>
@@ -315,8 +349,8 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
           onClick={handleNext}
           aria-label="Next developers"
           style={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             borderRadius: "50%",
             border: "1.5px solid #D3A479",
             background: "transparent",
@@ -326,7 +360,7 @@ export function HomeDeveloperShowcase({ developers = [] }: HomeDeveloperShowcase
             justifyContent: "center",
             cursor: "pointer",
             flexShrink: 0,
-            fontSize: 16,
+            fontSize: 18,
             transition: "all 0.2s ease",
           }}
           onMouseEnter={(e) => {

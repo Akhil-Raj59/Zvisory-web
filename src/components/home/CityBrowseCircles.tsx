@@ -7,17 +7,16 @@ import type { Project } from "@/models/project";
 import { projectService } from "@/services/projectService";
 
 const CITY_FALLBACK_IMAGES: Record<string, string> = {
-  Gurugram: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=400&q=80",
-  Bengaluru: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=400&q=80",
-  Hyderabad: "https://images.unsplash.com/photo-1605007493699-ce65834f8a00?auto=format&fit=crop&w=400&q=80",
-  Mumbai: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=400&q=80",
-  Pune: "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?auto=format&fit=crop&w=400&q=80",
-  Noida: "https://images.unsplash.com/photo-1628178122394-ff8533d5ba4b?auto=format&fit=crop&w=400&q=80",
-  Delhi: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=400&q=80",
+  Gurugram: "/figma-assets/Browse City/Project image (1).jpg",
+  Bengaluru: "/figma-assets/Browse City/Project image (2).jpg",
+  Hyderabad: "/figma-assets/Browse City/Project image (3).jpg",
+  Mumbai: "/figma-assets/Browse City/Project image (4).jpg",
+  Pune: "/figma-assets/Browse City/Project image (5).jpg",
+  Noida: "/figma-assets/Browse City/Project image (6).jpg",
+  Delhi: "/figma-assets/Browse City/Project image (7).jpg",
 };
 
-const DEFAULT_CITY_IMAGE =
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80";
+const DEFAULT_CITY_IMAGE = "/figma-assets/Browse City/Project image (8).jpg";
 
 type TabKey = "new_projects" | "ready_to_move" | "top_localities" | "top_developers";
 
@@ -176,10 +175,9 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
       {/* Heading */}
       <h2
         style={{
-          font: `600 32px/normal ${PJS}`,
+          font: `600 32px/42px ${HK}`,
           color: "#124446",
           textAlign: "center",
-          padding: "0 4px 24px",
           margin: 0,
         }}
       >
@@ -196,10 +194,12 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
           alignItems: "center",
           width: "100%",
           flexWrap: "wrap",
+          padding: "0 120px",
+          boxSizing: "border-box",
         }}
       >
         {displayCities.map((city) => {
-          const isSelected = city.name === selectedCity;
+          const isSelected = city.name.toLowerCase() === selectedCity.toLowerCase();
           const imgSrc =
             city.image ||
             city.coverImage ||
@@ -216,15 +216,19 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
                 flexDirection: "column",
                 gap: 8,
                 alignItems: "center",
+                justifyContent: "center",
                 padding: 8,
                 borderRadius: 12,
                 cursor: "pointer",
-                border: isSelected ? "0.5px solid #D3A479" : "none",
-                background: isSelected ? "rgba(18,68,70,0.2)" : "none",
+                border: isSelected ? "0.5px solid #D3A479" : "0.5px solid transparent",
+                background: isSelected ? "rgba(18,68,70,0.2)" : "transparent",
                 opacity: isSelected ? 1 : 0.5,
-                width: isSelected ? 125 : undefined,
-                transition: "opacity 150ms",
+                width: 125,
+                height: 126,
+                boxSizing: "border-box",
+                transition: "all 150ms ease",
                 outline: "none",
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => {
                 if (!isSelected) (e.currentTarget as HTMLButtonElement).style.opacity = "0.8";
@@ -239,15 +243,21 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
                 alt={city.name}
                 width={80}
                 height={80}
-                style={{ borderRadius: "50%", objectFit: "cover", width: 80, height: 80 }}
+                style={{ borderRadius: "50%", objectFit: "cover", width: 80, height: 80, border: "1px solid #D3A479", boxSizing: "border-box" }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = DEFAULT_CITY_IMAGE;
                 }}
               />
               <span
                 style={{
-                  font: `600 20px/normal ${HK}`,
+                  font: `600 16px/21px ${HK}`,
                   color: "#124446",
+                  textAlign: "center",
+                  maxWidth: "100%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "block",
                 }}
               >
                 {city.name}
@@ -264,7 +274,7 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
           display: "flex",
           gap: 36,
           alignItems: "center",
-          paddingTop: 24,
+          paddingTop: 16,
         }}
       >
         {TABS.map((tab) => {
@@ -276,13 +286,14 @@ export function CityBrowseCircles({ cities, projects = [] }: CityBrowseCirclesPr
               onClick={() => setActiveTab(tab.key)}
               style={{
                 padding: "10px 24px",
-                font: `400 24px/normal ${HK}`,
+                font: `600 20px/26px ${HK}`,
                 cursor: "pointer",
                 background: "none",
                 border: "none",
                 borderBottom: isActive ? "1px solid #D3A479" : "1px solid transparent",
                 color: isActive ? "#124446" : "#557173",
                 outline: "none",
+                transition: "color 150ms ease, border-color 150ms ease",
               }}
             >
               {tab.label}

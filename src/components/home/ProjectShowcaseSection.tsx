@@ -5,8 +5,7 @@ import Link from "next/link";
 import type { Project } from "@/models/project";
 import { ContactModal, ContactModalProjectContext } from "@/components/layout/ContactModal";
 
-const FALLBACK_PROJECT_IMG =
-  "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80";
+const FALLBACK_PROJECT_IMG = "/figma-assets/Browse City/Project image.avif";
 
 const HK = '"Hanken Grotesk", system-ui, sans-serif';
 
@@ -35,12 +34,21 @@ function MapPinIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-// Checkmark icon for RERA badge
+// Checkmark icon for RERA badge using Figma SVG
 function CheckIcon() {
   return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#124446" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/figma-assets/Browse City/rera check.svg"
+      alt="RERA"
+      width={16}
+      height={16}
+      style={{ flexShrink: 0 }}
+      onError={(e) => {
+        // Fallback to inline SVG if image fails
+        e.currentTarget.style.display = "none";
+      }}
+    />
   );
 }
 
@@ -107,7 +115,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
   return (
     <>
       <div style={{ width: "100%", position: "relative" }}>
-        {/* Horizontal scroll row with responsive stacking */}
+        {/* Horizontal scroll row with responsive styling */}
         <div
           className="city-cards-row"
           style={{
@@ -115,7 +123,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
             gap: 40,
             alignItems: "flex-start",
             overflowX: "auto",
-            padding: "24px 0 24px 150px",
+            padding: "24px 0 24px 120px",
             width: "100%",
             boxSizing: "border-box",
           }}
@@ -132,30 +140,34 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
               .city-cards-row {
                 padding-left: 16px !important;
                 padding-right: 16px !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                overflow-x: visible !important;
-                gap: 24px !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                overflow-x: auto !important;
+                flex-wrap: nowrap !important;
+                gap: 16px !important;
+                scroll-snap-type: x mandatory;
               }
               .project-card {
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 320px !important;
+                min-width: 320px !important;
+                max-width: 85vw !important;
+                scroll-snap-align: start;
               }
               .project-card-img {
-                width: 100% !important;
-                height: 220px !important;
+                height: 200px !important;
               }
               .project-card-actions {
-                flex-direction: column !important;
-                gap: 10px !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr 1fr !important;
+                gap: 8px !important;
                 width: 100% !important;
               }
               .project-card-actions a,
               .project-card-actions button {
-                width: 100% !important;
+                padding: 0 4px !important;
+                font-size: 13px !important;
+                height: 38px !important;
                 justify-content: center !important;
-                padding: 0 16px !important;
-                box-sizing: border-box !important;
               }
             }
             .city-cards-row::-webkit-scrollbar { display: none; }
@@ -188,15 +200,14 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                   key={project.slug || project.id}
                   className="project-card"
                   style={{
-                    width: 608,
-                    maxWidth: "100%",
+                    width: 514,
+                    minWidth: 480,
                     flexShrink: 0,
                     background: "#FFFFFF",
                     borderRadius: 20,
-                    filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))",
+                    boxShadow: "0px 4px 24px rgba(0, 0, 0, 0.25)",
                     display: "flex",
                     flexDirection: "column",
-                    gap: 16,
                     overflow: "hidden",
                   }}
                 >
@@ -208,7 +219,7 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                     className="project-card-img"
                     style={{
                       width: "100%",
-                      height: 342,
+                      height: 306,
                       borderRadius: "20px 20px 0 0",
                       objectFit: "cover",
                       display: "block",
@@ -225,10 +236,11 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                       display: "flex",
                       flexDirection: "column",
                       gap: 8,
+                      boxSizing: "border-box",
                     }}
                   >
                     {/* Block A */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 12 }}>
                       {/* Title row */}
                       <div
                         style={{
@@ -239,9 +251,9 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                       >
                         <span
                           style={{
-                            font: `600 24px/normal ${HK}`,
+                            font: `600 20px/26px ${HK}`,
                             color: "#124446",
-                            width: "70%",
+                            maxWidth: "70%",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -255,8 +267,9 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                             display: "flex",
                             gap: 5,
                             alignItems: "center",
-                            font: `400 11px ${HK}`,
+                            font: `400 11px/14px ${HK}`,
                             color: "#124446",
+                            flexShrink: 0,
                           }}
                         >
                           <CheckIcon />
@@ -269,13 +282,15 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 4,
-                          font: `400 12px ${HK}`,
+                          gap: 6,
+                          font: `400 12px/16px ${HK}`,
                           color: "#557173",
                         }}
                       >
-                        <MapPinIcon size={15} />
-                        {`By ${project.developer || "Verified Developer"}`}
+                        <MapPinIcon size={14} />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {`By ${project.developer || "Verified Developer"}`}
+                        </span>
                       </div>
 
                       {/* Locality line */}
@@ -283,13 +298,15 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 4,
-                          font: `400 12px ${HK}`,
+                          gap: 6,
+                          font: `400 12px/16px ${HK}`,
                           color: "#557173",
                         }}
                       >
                         <MapPinIcon size={14} />
-                        {`${project.location || project.microMarket || ""}, ${project.city}`}
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {`${project.location || project.microMarket || ""}, ${project.city}`}
+                        </span>
                       </div>
                     </div>
 
@@ -299,31 +316,40 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
+                        minHeight: 34,
                       }}
                     >
                       <span
-                        style={{ font: `400 16px ${HK}`, color: "#124446" }}
+                        style={{
+                          font: `400 16px/21px ${HK}`,
+                          color: "#124446",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "50%",
+                        }}
                       >
                         {unitTypeText}
                       </span>
                       <span
                         style={{
-                          background: "rgba(18,68,70,0.2)",
+                          background: "rgba(18, 68, 70, 0.2)",
                           padding: "4px 8px",
                           borderRadius: 4,
-                          font: `600 20px ${HK}`,
+                          font: `600 20px/26px ${HK}`,
                           color: "#124446",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         ₹ {project.startingPrice || "On Request"}
                       </span>
                     </div>
 
-                    {/* Divider */}
+                    {/* Details divider */}
                     <div
                       style={{
                         height: 1,
-                        background: "rgba(18,68,70,0.2)",
+                        background: "rgba(18, 68, 70, 0.2)",
                         width: "100%",
                       }}
                     />
@@ -334,12 +360,13 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
+                        minHeight: 29,
                       }}
                     >
-                      <span style={{ font: `400 16px ${HK}`, color: "#124446" }}>
+                      <span style={{ font: `400 16px/21px ${HK}`, color: "#124446" }}>
                         {`Possession ${project.possession || "Dec 2026"}`}
                       </span>
-                      <span style={{ font: `400 16px ${HK}`, color: "#124446" }}>
+                      <span style={{ font: `400 16px/21px ${HK}`, color: "#124446" }}>
                         {project.unitSizes || ""}
                       </span>
                     </div>
@@ -351,24 +378,27 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         display: "flex",
                         gap: 18,
                         alignItems: "center",
+                        height: 45,
+                        marginTop: 4,
                       }}
                     >
                       {/* View Details */}
                       <Link
                         href={`/properties/${project.slug}`}
                         style={{
-                          height: 40,
+                          flex: 1,
+                          height: 45,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           borderRadius: 6,
-                          font: `400 16px ${HK}`,
+                          font: `400 16px/21px ${HK}`,
                           background: "#124446",
                           border: "1px solid #D3A479",
-                          padding: "0 56px",
                           color: "#FFFFFF",
                           textDecoration: "none",
                           whiteSpace: "nowrap",
+                          boxSizing: "border-box",
                         }}
                       >
                         View Details
@@ -379,18 +409,19 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         type="button"
                         onClick={() => openEnquiry(project)}
                         style={{
-                          height: 40,
+                          flex: 1,
+                          height: 45,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           borderRadius: 6,
-                          font: `400 16px ${HK}`,
+                          font: `400 16px/21px ${HK}`,
                           background: "#FFFFFF",
                           border: "1px solid #124446",
-                          padding: "0 52px",
                           color: "#124446",
                           cursor: "pointer",
                           whiteSpace: "nowrap",
+                          boxSizing: "border-box",
                         }}
                       >
                         Submit Enquiry
@@ -401,18 +432,20 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
                         type="button"
                         onClick={() => toggleCompare(project.slug)}
                         style={{
-                          height: 40,
+                          flex: 1,
+                          height: 45,
                           display: "flex",
                           alignItems: "center",
-                          gap: 8,
+                          justifyContent: "center",
+                          gap: 6,
                           borderRadius: 6,
-                          font: `400 16px ${HK}`,
+                          font: `400 16px/21px ${HK}`,
                           border: "1px solid #124446",
-                          padding: "0 20px",
                           color: "#124446",
-                          background: "none",
+                          background: "#FFFFFF",
                           cursor: "pointer",
                           whiteSpace: "nowrap",
+                          boxSizing: "border-box",
                         }}
                       >
                         <span
@@ -437,26 +470,33 @@ export function ProjectShowcaseSection({ projects, selectedCity }: ProjectShowca
         </div>
 
         {/* View all button */}
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 16 }}>
           <Link
             href={`/search?city=${encodeURIComponent(primaryCity)}`}
             style={{
               display: "flex",
               gap: 8,
               alignItems: "center",
-              padding: 12,
+              padding: "12px 16px",
               border: "1px solid #D3A479",
               borderRadius: 8,
-              boxShadow: "0 4px 6px rgba(0,0,0,0.25)",
-              font: `400 16px ${HK}`,
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.25)",
+              font: `400 16px/21px ${HK}`,
               color: "#124446",
               background: "none",
               cursor: "pointer",
               textDecoration: "none",
             }}
           >
-            View all {projectCount > 0 ? projectCount : 20} projects in {primaryCity}
-            <span>→</span>
+            <span>View all {projectCount > 0 ? projectCount : 20} projects in {primaryCity}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/figma-assets/Browse City/arrow_right_alt_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
+              alt="arrow"
+              width={24}
+              height={24}
+              style={{ display: "block" }}
+            />
           </Link>
         </div>
 

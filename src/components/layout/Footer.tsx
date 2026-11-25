@@ -2,6 +2,39 @@ import Link from "next/link";
 
 const HK = '"Hanken Grotesk", system-ui, sans-serif';
 
+const SOCIAL_LINKS = [
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+    icon: "/figma-assets/Footer/instagram-icon.svg",
+    bg: "#D3A479",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com",
+    icon: "/figma-assets/Footer/linkedin-icon.svg",
+    bg: "#124446",
+  },
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+    icon: "/figma-assets/Footer/facebook.svg",
+    bg: "#D3A479",
+  },
+  {
+    label: "X (Twitter)",
+    href: "https://x.com",
+    icon: "/figma-assets/Footer/x.svg",
+    bg: "#D3A479",
+  },
+  {
+    label: "YouTube",
+    href: "https://youtube.com",
+    icon: "/figma-assets/Footer/youtube-icon.svg",
+    bg: "#D3A479",
+  },
+];
+
 export function Footer() {
   return (
     <footer
@@ -21,11 +54,9 @@ export function Footer() {
             padding: 48px 48px 36px !important;
           }
           .footer-logotype span {
-            width: 100% !important;
-            max-width: 100% !important;
             font-size: clamp(48px, 7.5vw, 110px) !important;
-            letter-spacing: clamp(16px, 3.5vw, 55px) !important;
-            padding-right: clamp(16px, 3.5vw, 55px) !important;
+            letter-spacing: 0.5em !important;
+            padding-right: 0.5em !important;
           }
         }
         @media (max-width: 1024px) {
@@ -39,8 +70,8 @@ export function Footer() {
           }
           .footer-logotype span {
             font-size: clamp(36px, 8.5vw, 84px) !important;
-            letter-spacing: clamp(8px, 2.8vw, 32px) !important;
-            padding-right: clamp(8px, 2.8vw, 32px) !important;
+            letter-spacing: 0.5em !important;
+            padding-right: 0.5em !important;
             width: 100% !important;
           }
           .footer-legal {
@@ -57,184 +88,147 @@ export function Footer() {
           }
           .footer-logotype span {
             font-size: clamp(24px, 7.5vw, 48px) !important;
-            letter-spacing: clamp(4px, 2vw, 14px) !important;
-            padding-right: clamp(4px, 2vw, 14px) !important;
+            letter-spacing: 0.5em !important;
+            padding-right: 0.5em !important;
           }
         }
       `}</style>
 
-      {/* Main Row: Brand, Quick Links, RERA */}
+      {/* Main Row: Brand Summary + Quick Links + RERA */}
       <div
         className="footer-main"
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          padding: "60px 150px 52px",
+          padding: "60px 120px 52px",
           width: "100%",
           boxSizing: "border-box",
+          gap: 40,
         }}
       >
-        {/* Brand Summary */}
+        {/* Brand Summary + Social Row */}
         <div
           className="footer-brand"
           style={{
-            width: 568,
+            flex: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 14,
+            gap: 22,
             textAlign: "center",
-            color: "#FFFFFF",
-            font: `600 20px/normal ${HK}`,
           }}
         >
-          <span>
+          <span
+            style={{
+              font: `600 16px/21px ${HK}`,
+              color: "#FFFFFF",
+            }}
+          >
             Your trusted partner in finding the right property in 5 major cities of India, wherever you are in the world.
           </span>
 
-          {/* Social Row: 5 tiles */}
+          {/* Social Row: 5 × 36px tiles */}
           <div
             style={{
               display: "flex",
               gap: 24,
               alignItems: "center",
-              marginTop: 6,
             }}
           >
-            {/* Instagram */}
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "transparent",
-                border: "1px solid #D3A479",
-                color: "#D3A479",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              ig
-            </a>
-
-            {/* LinkedIn */}
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#124446",
-                border: "1px solid #D3A479",
-                color: "#D3A479",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              in
-            </a>
-
-            {/* Facebook */}
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Facebook"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#D3A479",
-                color: "#124446",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              f
-            </a>
-
-            {/* X */}
-            <a
-              href="https://x.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="X (formerly Twitter)"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "transparent",
-                border: "1px solid #D3A479",
-                color: "#D3A479",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              𝕏
-            </a>
-
-            {/* YouTube */}
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="YouTube"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#D3A479",
-                color: "#124446",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              yt
-            </a>
+            {SOCIAL_LINKS.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={social.label}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: social.bg,
+                  textDecoration: "none",
+                  flexShrink: 0,
+                  padding: 4,
+                  boxSizing: "border-box",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={social.icon}
+                  alt={social.label}
+                  width={28}
+                  height={28}
+                  style={{ objectFit: "contain" }}
+                />
+              </a>
+            ))}
           </div>
+        </div>
+
+        {/* Advisor CTA (right side on desktop) */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 20,
+          }}
+          className="footer-advisor"
+        >
+          <span
+            style={{
+              font: `600 20px/26px ${HK}`,
+              color: "#FFFFFF",
+              textAlign: "center",
+            }}
+          >
+            Not sure which project is right for you?
+          </span>
+          <Link
+            href="/contact"
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              padding: "8px 20px",
+              background: "#D3A479",
+              borderRadius: 6,
+              color: "#124446",
+              font: `600 16px/21px ${HK}`,
+              textDecoration: "none",
+            }}
+          >
+            Speak to an Advisor
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/figma-assets/Browse City/arrow_right_alt_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
+              alt="arrow"
+              width={20}
+              height={20}
+            />
+          </Link>
         </div>
 
         {/* Quick Links */}
         <div
           style={{
-            width: 266,
             display: "flex",
             flexDirection: "column",
             gap: 16,
+            flexShrink: 0,
           }}
         >
           <h3
             style={{
               margin: 0,
-              font: `600 24px/normal ${HK}`,
+              font: `600 20px/26px ${HK}`,
               color: "#D3A479",
             }}
           >
@@ -245,8 +239,7 @@ export function Footer() {
             style={{
               display: "flex",
               gap: 20,
-              width: 263,
-              font: `400 16px/normal ${HK}`,
+              font: `400 16px/21px ${HK}`,
               color: "#FFFFFF",
             }}
           >
@@ -259,15 +252,9 @@ export function Footer() {
                 gap: 8,
               }}
             >
-              <Link href="/home-loan" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                HOME LOAN
-              </Link>
-              <Link href="/contact" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                CONTACT US
-              </Link>
-              <Link href="/blog" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                BLOGS
-              </Link>
+              <Link href="/home-loan" style={{ color: "#FFFFFF", textDecoration: "none" }}>HOME LOAN</Link>
+              <Link href="/contact" style={{ color: "#FFFFFF", textDecoration: "none" }}>CONTACT US</Link>
+              <Link href="/blog" style={{ color: "#FFFFFF", textDecoration: "none" }}>BLOGS</Link>
             </div>
 
             {/* Col 2 */}
@@ -279,32 +266,26 @@ export function Footer() {
                 gap: 8,
               }}
             >
-              <Link href="/careers" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                CAREER
-              </Link>
-              <Link href="/about" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                ABOUT US
-              </Link>
-              <Link href="/search" style={{ color: "#FFFFFF", textDecoration: "none" }} className="hover:text-[#D3A479]">
-                PROPERTY TYPE
-              </Link>
+              <Link href="/careers" style={{ color: "#FFFFFF", textDecoration: "none" }}>CAREER</Link>
+              <Link href="/about" style={{ color: "#FFFFFF", textDecoration: "none" }}>ABOUT US</Link>
+              <Link href="/search" style={{ color: "#FFFFFF", textDecoration: "none" }}>PROPERTY TYPE</Link>
             </div>
           </div>
         </div>
 
-        {/* RERA Number */}
+        {/* RERA Numbers */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             gap: 16,
-            overflow: "clip",
+            flexShrink: 0,
           }}
         >
           <h3
             style={{
               margin: 0,
-              font: `600 24px/normal ${HK}`,
+              font: `600 20px/26px ${HK}`,
               color: "#D3A479",
             }}
           >
@@ -313,7 +294,7 @@ export function Footer() {
 
           <div
             style={{
-              font: `400 16px/normal ${HK}`,
+              font: `400 16px/21px ${HK}`,
               color: "#FFFFFF",
               width: 301,
               display: "flex",
@@ -338,21 +319,22 @@ export function Footer() {
           alignItems: "center",
           justifyContent: "center",
           overflow: "hidden",
+          background: "#124446",
         }}
       >
         <span
           style={{
-            width: 1331,
             textAlign: "center",
-            font: `600 132px/normal ${HK}`,
-            letterSpacing: "113.52px",
-            paddingRight: "113.52px",
-            background: "linear-gradient(to bottom, #FFFFFF 12.981%, #124446 100%)",
+            font: `600 132px/172px ${HK}`,
+            letterSpacing: "0.5em",
+            paddingRight: "0.5em",
+            background: "linear-gradient(180deg, #FFFFFF 12.98%, #124446 100%)",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
             display: "block",
             userSelect: "none",
+            whiteSpace: "nowrap",
           }}
         >
           ZVISORY
@@ -366,12 +348,13 @@ export function Footer() {
           width: "100%",
           boxSizing: "border-box",
           borderTop: "0.5px solid #D3A479",
-          padding: "22px 60px 12px",
+          padding: "16px 120px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          font: `400 12px/normal ${HK}`,
+          font: `400 12px/16px ${HK}`,
           color: "#D3A479",
+          minHeight: 50,
         }}
       >
         <span>&copy; 2026 Zvisory. All rights reserved.</span>
@@ -383,12 +366,8 @@ export function Footer() {
             alignItems: "center",
           }}
         >
-          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }} className="hover:underline">
-            Privacy Policy
-          </Link>
-          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }} className="hover:underline">
-            Terms of Use
-          </Link>
+          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }}>Privacy Policy</Link>
+          <Link href="/about" style={{ color: "#D3A479", textDecoration: "none" }}>Terms of Use</Link>
           <div
             style={{
               display: "flex",

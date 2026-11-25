@@ -56,7 +56,7 @@ export function TopPropertySearches() {
       style={{
         background: "#F8FFFB",
         color: "#124446",
-        padding: "56px 150px 72px",
+        padding: "56px 120px 72px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -71,12 +71,13 @@ export function TopPropertySearches() {
           .links-section { padding: 48px 48px 56px !important; }
         }
         @media (max-width: 1024px) {
-          .links-section { padding: 40px 24px 48px !important; gap: 32px !important; }
-          .links-grid { flex-direction: column !important; gap: 24px !important; }
+          .links-section { padding: 40px 0 48px !important; gap: 32px !important; }
+          .links-grid { justify-content: flex-start !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding: 0 24px 12px !important; gap: 0 48px !important; -ms-overflow-style: none; scrollbar-width: none; }
+          .links-grid::-webkit-scrollbar { display: none; }
         }
         @media (max-width: 768px) {
-          .links-section { padding: 32px 16px 40px !important; }
-          .links-grid { white-space: normal !important; gap: 20px !important; }
+          .links-section { padding: 32px 0 40px !important; gap: 24px !important; }
+          .links-grid { gap: 0 32px !important; padding: 0 16px 12px !important; }
         }
       `}</style>
 
@@ -86,24 +87,24 @@ export function TopPropertySearches() {
           margin: 0,
           width: "100%",
           textAlign: "center",
-          font: `600 32px/normal ${PJS}`,
+          font: `600 32px/40px ${PJS}`,
           color: "#124446",
         }}
       >
         Top Property Searches
       </h2>
 
-      {/* Link Grid: 4 Columns */}
+      {/* Link Grid: 4 Columns with gap 64px 80px per Figma */}
       <div
         className="links-grid"
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "center",
+          gap: "0 80px",
           width: "100%",
-          padding: "0 8px",
           boxSizing: "border-box",
-          font: `400 16px/normal ${HK}`,
-          whiteSpace: "nowrap",
+          font: `400 16px/21px ${HK}`,
+          flexWrap: "wrap",
         }}
       >
         {SEARCH_COLUMNS.map((col, cIdx) => (
@@ -112,7 +113,10 @@ export function TopPropertySearches() {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 0,
+              gap: 6,
+              padding: "0 24px",
+              boxSizing: "border-box",
+              minWidth: 220,
             }}
           >
             {col.links.map((link, lIdx) => (
@@ -124,8 +128,8 @@ export function TopPropertySearches() {
                   textDecoration: "none",
                   display: "block",
                   lineHeight: "21px",
-                  height: 21,
                   transition: "color 0.15s ease",
+                  whiteSpace: "nowrap",
                 }}
                 className="hover:text-[#D3A479]"
               >

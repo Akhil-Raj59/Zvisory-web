@@ -58,8 +58,7 @@ const STATS = [
   { value: "15+", label: "Years Experience" },
 ];
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=813&q=80";
+const FALLBACK_IMAGE = "/figma-assets/Testimonial/Project image.png";
 
 const jakartaSans: React.CSSProperties = {
   fontFamily: '"Plus Jakarta Sans", sans-serif',
@@ -133,12 +132,12 @@ export function LovedByPeopleSection({
                 ...jakartaSans,
                 fontWeight: 600,
                 fontSize: "32px",
-                lineHeight: "normal",
+                lineHeight: "40px",
                 color: "#F8FFFB",
                 margin: 0,
               }}
             >
-              We Are Loved By People From All Parts Of The Country
+              We Are Loved By People From All Part Of The Country
             </h2>
 
             {/* Subtitle */}
@@ -147,7 +146,7 @@ export function LovedByPeopleSection({
                 ...hankenGrotesk,
                 fontWeight: 400,
                 fontSize: "16px",
-                lineHeight: "normal",
+                lineHeight: "21px",
                 color: "#FFFFFF",
                 margin: 0,
               }}
@@ -217,25 +216,16 @@ export function LovedByPeopleSection({
               </div>
 
               {/* Quote text row */}
-              <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
-                {/* Opening quote mark — rotated 180° to look like a closing/decorative glyph */}
-                <span
-                  aria-hidden="true"
-                  style={{
-                    display: "inline-block",
-                    width: 36,
-                    height: 26,
-                    flexShrink: 0,
-                    fontSize: "36px",
-                    lineHeight: "26px",
-                    color: "#D3A479",
-                    transform: "rotate(180deg)",
-                    fontFamily: "Georgia, serif",
-                    userSelect: "none",
-                  }}
-                >
-                  &ldquo;
-                </span>
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                {/* Quotation mark from Figma */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/figma-assets/Testimonial/Double Quotation Marks 1.svg"
+                  alt="quote"
+                  width={36}
+                  height={26}
+                  style={{ flexShrink: 0, marginTop: 4 }}
+                />
 
                 <p
                   style={{
@@ -256,10 +246,10 @@ export function LovedByPeopleSection({
             <div
               style={{
                 display: "flex",
-                gap: "60px",
+                gap: "40px",
                 alignItems: "center",
                 height: "24px",
-                width: "218px",
+                marginTop: "16px",
               }}
             >
               {/* Left arrow */}
@@ -270,19 +260,24 @@ export function LovedByPeopleSection({
                 style={{
                   width: 24,
                   height: 24,
-                  color: "#FFFFFF",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  fontSize: "20px",
                   padding: 0,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
+                  transform: "rotate(180deg)",
                 }}
               >
-                ←
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/figma-assets/Testimonial/arrow.svg"
+                  alt="previous"
+                  width={24}
+                  height={24}
+                />
               </button>
 
               {/* Dots */}
@@ -305,6 +300,7 @@ export function LovedByPeopleSection({
                       padding: 0,
                       cursor: "pointer",
                       flexShrink: 0,
+                      transition: "background 150ms ease",
                     }}
                   />
                 ))}
@@ -318,11 +314,9 @@ export function LovedByPeopleSection({
                 style={{
                   width: 24,
                   height: 24,
-                  color: "#FFFFFF",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  fontSize: "20px",
                   padding: 0,
                   display: "flex",
                   alignItems: "center",
@@ -330,7 +324,13 @@ export function LovedByPeopleSection({
                   flexShrink: 0,
                 }}
               >
-                →
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/figma-assets/Testimonial/arrow.svg"
+                  alt="next"
+                  width={24}
+                  height={24}
+                />
               </button>
             </div>
           </div>
@@ -370,8 +370,10 @@ export function LovedByPeopleSection({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
               gap: "2px",
               color: "#124446",
+              boxSizing: "border-box",
             }}
             className="stat-card"
           >
@@ -380,7 +382,7 @@ export function LovedByPeopleSection({
                 ...jakartaSans,
                 fontWeight: 600,
                 fontSize: "32px",
-                lineHeight: "normal",
+                lineHeight: "40px",
                 color: "#124446",
                 whiteSpace: "nowrap",
               }}
@@ -392,7 +394,7 @@ export function LovedByPeopleSection({
                 ...hankenGrotesk,
                 fontWeight: 600,
                 fontSize: "20px",
-                lineHeight: "normal",
+                lineHeight: "26px",
                 color: "#124446",
                 whiteSpace: "nowrap",
               }}
@@ -407,7 +409,7 @@ export function LovedByPeopleSection({
       <style>{`
         /* Desktop defaults */
         .testimonial-band {
-          padding: 72px 150px 0;
+          padding: 72px 120px 0;
           box-sizing: border-box;
           width: 100%;
         }
@@ -417,7 +419,7 @@ export function LovedByPeopleSection({
         }
         .testimonial-left-col {
           flex: 1;
-          max-width: 619px;
+          max-width: 780px;
         }
         .testimonial-right-img {
           width: 813px;
@@ -425,11 +427,18 @@ export function LovedByPeopleSection({
           height: 408px;
         }
         .stats-band {
-          padding: 56px 24px 72px;
-          gap: 68px;
+          padding: 56px 120px 72px;
+          gap: 40px;
           flex-wrap: nowrap;
           box-sizing: border-box;
           width: 100%;
+        }
+        .stat-card {
+          width: 240px;
+          min-width: 180px;
+          max-width: 240px;
+          height: 108px;
+          flex: 1;
         }
 
         /* Large Laptops / Tablets (1024px - 1440px) */
@@ -443,8 +452,9 @@ export function LovedByPeopleSection({
           }
           .stats-band {
             padding: 48px 24px 60px !important;
-            gap: 28px !important;
-            flex-wrap: wrap !important;
+            gap: 20px !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
           }
         }
 
@@ -467,7 +477,10 @@ export function LovedByPeopleSection({
             height: 280px !important;
           }
           .stats-band {
-            gap: 20px !important;
+            gap: 16px !important;
+            overflow-x: auto !important;
+            justify-content: flex-start !important;
+            padding: 32px 16px 48px !important;
           }
         }
 
@@ -487,19 +500,34 @@ export function LovedByPeopleSection({
             width: 100% !important;
             max-width: 100% !important;
             height: 220px !important;
+            border-radius: 60px 0 60px 0 !important;
           }
           .stats-band {
-            padding: 36px 16px 48px !important;
+            padding: 24px 16px 36px !important;
             gap: 12px !important;
-            flex-wrap: wrap !important;
-            justify-content: center !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            justify-content: flex-start !important;
+            scroll-snap-type: x mandatory;
           }
+          .stats-band::-webkit-scrollbar { display: none; }
+          .stats-band { -ms-overflow-style: none; scrollbar-width: none; }
           .stat-card {
-            min-width: calc(50% - 8px) !important;
-            max-width: calc(50% - 8px) !important;
-            flex: 1 1 calc(50% - 8px) !important;
-            box-sizing: border-box !important;
-            padding: 14px 10px !important;
+            min-width: 140px !important;
+            width: 140px !important;
+            max-width: 140px !important;
+            height: 84px !important;
+            padding: 10px !important;
+            flex-shrink: 0 !important;
+            scroll-snap-align: start;
+          }
+          .stat-card div:first-child {
+            font-size: 22px !important;
+            line-height: 28px !important;
+          }
+          .stat-card div:last-child {
+            font-size: 13px !important;
+            line-height: 18px !important;
           }
         }
       `}</style>

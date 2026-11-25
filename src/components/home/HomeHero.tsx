@@ -13,38 +13,29 @@ interface HomeHeroProps {
 const HK = 'var(--font-hanken,"Hanken Grotesk"),sans-serif';
 const PJ = 'var(--font-plus-jakarta,"Plus Jakarta Sans"),sans-serif';
 
-/** Small caret icon used to replace default select arrow */
+/** Caret icon using Figma SVG */
 function Caret() {
   return (
-    <svg
-      width="12"
-      height="8"
-      viewBox="0 0 12 8"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <img
+      src="/figma-assets/Header+ banner/arrow_drop_down_.svg"
+      alt=""
+      width={18}
+      height={18}
       style={{ display: "block", flexShrink: 0 }}
-    >
-      <path d="M1 1L6 7L11 1" stroke="#124446" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    />
   );
 }
 
 /** Location pin SVG */
 function LocationPin() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <img
+      src="/figma-assets/Header+ banner/my_location_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
+      alt=""
+      width={20}
+      height={20}
       style={{ display: "block", flexShrink: 0 }}
-    >
-      <path
-        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"
-        fill="#557173"
-      />
-    </svg>
+    />
   );
 }
 
@@ -149,44 +140,56 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
       <style>{`
         .hero-section {
           position: relative;
-          height: 1000px;
+          height: 736px;
+          min-height: 700px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 56px;
+          gap: 30px;
           border-bottom: 1px solid #F8FFFB;
           overflow: hidden;
+          padding: 60px 16px;
+          box-sizing: border-box;
         }
         .hero-search-wrapper {
           position: relative;
           z-index: 1;
-          width: 845px;
+          width: 780px;
+          max-width: 100%;
           display: flex;
           flex-direction: column;
           gap: 16px;
           align-items: center;
         }
         .hero-heading-block {
-          width: 736px;
+          width: 780px;
+          max-width: 100%;
           text-align: center;
           position: relative;
           z-index: 1;
         }
         @media (max-width: 900px) {
+          .hero-section {
+            height: auto !important;
+            min-height: 380px !important;
+            padding: 32px 16px 40px !important;
+            gap: 20px !important;
+          }
           .hero-search-wrapper {
             width: 100% !important;
             max-width: 100% !important;
-            padding: 0 16px !important;
+            padding: 0 !important;
             box-sizing: border-box !important;
           }
           .hero-heading-block {
             width: 100% !important;
             max-width: 100% !important;
-            padding: 0 16px !important;
+            padding: 0 !important;
             box-sizing: border-box !important;
           }
           .hero-filter-bar {
+            width: 100% !important;
             gap: 16px !important;
             height: auto !important;
             flex-wrap: wrap !important;
@@ -196,15 +199,16 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
         @media (max-width: 768px) {
           .hero-section {
             height: auto !important;
-            min-height: 580px !important;
-            gap: 24px !important;
-            padding: 40px 0 !important;
+            min-height: 340px !important;
+            gap: 18px !important;
+            padding: 28px 16px 36px !important;
           }
           .hero-top-bar {
             flex-direction: column !important;
             height: auto !important;
             gap: 10px !important;
             width: 100% !important;
+            padding: 12px !important;
           }
           .hero-city-select {
             width: 100% !important;
@@ -218,16 +222,14 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
           .hero-filter-bar {
             height: auto !important;
             flex-wrap: wrap !important;
-            gap: 12px 20px !important;
+            gap: 10px 16px !important;
             justify-content: flex-start !important;
-            padding: 12px !important;
+            padding: 10px !important;
             width: 100% !important;
           }
-          .hero-line1 {
-            font-size: clamp(28px, 7vw, 48px) !important;
-          }
-          .hero-line2 {
-            font-size: clamp(24px, 6vw, 40px) !important;
+          .hero-title {
+            font-size: clamp(24px, 6.5vw, 36px) !important;
+            line-height: 1.25 !important;
           }
         }
       `}</style>
@@ -236,16 +238,16 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
         {/* ── Background image ── */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/home_hero_bg.jpg"
+          src="/figma-assets/Header+ banner/Banner image.png"
           alt=""
           aria-hidden="true"
           style={{
             position: "absolute",
-            left: "-1.56%",
-            top: 0,
-            width: "103.36%",
-            height: "99.99%",
-            objectFit: "fill",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
           }}
         />
 
@@ -255,45 +257,33 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(to bottom, rgba(18,68,70,.75) 30%, rgba(18,68,70,.25) 68.269%, #F8FFFB 100%)",
+              "linear-gradient(180deg, rgba(18, 68, 70, 0.75) 30%, rgba(18, 68, 70, 0.25) 68.27%, #F8FFFB 100%)",
           }}
         />
 
         {/* ── Heading block ── */}
         <div className="hero-heading-block">
-          <span
-            className="hero-line1"
+          <h1
+            className="hero-title"
             style={{
               fontFamily: PJ,
               fontWeight: 500,
-              fontSize: 64,
-              lineHeight: "normal",
-              color: "#FFFFFF",
-              display: "block",
-            }}
-          >
-            Find Your Dream Home,
-          </span>
-          <span
-            className="hero-line2"
-            style={{
-              fontFamily: HK,
-              fontWeight: 500,
               fontSize: 56,
-              lineHeight: "normal",
-              color: "#F8FFFB",
-              display: "block",
+              lineHeight: "71px",
+              color: "#FFFFFF",
+              margin: 0,
+              textAlign: "center",
             }}
           >
-            Not Just A Property.
-          </span>
+            Find Your Dream Home, Not Just A Property.
+          </h1>
         </div>
 
         {/* ── Search card wrapper ── */}
         <div className="hero-search-wrapper">
           <form onSubmit={handleSearch} style={{ width: "100%", display: "contents" }}>
 
-            {/* ── Top bar ── */}
+            {/* ── Top bar (Frame 12) ── */}
             <div
               className="hero-top-bar"
               style={{
@@ -301,120 +291,162 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: 16,
+                padding: "16px",
                 background: "#F8FFFB",
                 border: "1px solid #124446",
                 borderRadius: 8,
                 boxSizing: "border-box",
-                gap: 12,
+                gap: 16,
               }}
             >
-              {/* City select */}
-              <select
+              {/* City select with location icon & caret */}
+              <div
                 className="hero-city-select"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                aria-label="Select City"
                 style={{
-                  width: 142,
-                  height: 40,
+                  position: "relative",
+                  width: 145,
+                  height: 43,
                   background: "#F8FFFB",
                   border: "1px solid #124446",
                   borderRadius: 5,
-                  color: "#557173",
-                  fontFamily: HK,
-                  fontSize: 16,
-                  fontWeight: 400,
-                  padding: "0 8px",
-                  appearance: "none",
-                  WebkitAppearance: "none",
-                  cursor: "pointer",
-                  outline: "none",
-                  flexShrink: 0,
-                }}
-              >
-                <option value="All">All Cities</option>
-                {cities.length > 0 ? (
-                  cities.map((c) => (
-                    <option key={c.id || c.name} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <option value="Gurugram">Gurugram</option>
-                    <option value="Bengaluru">Bengaluru</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Pune">Pune</option>
-                    <option value="Noida">Noida</option>
-                  </>
-                )}
-              </select>
-
-              {/* Search input */}
-              <input
-                className="hero-search-input"
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search"
-                style={{
-                  width: 465,
-                  height: 40,
-                  background: "#F8FFFB",
-                  border: "1px solid #124446",
-                  borderRadius: 5,
-                  padding: "10px 18px",
-                  fontFamily: HK,
-                  fontSize: 16,
-                  fontWeight: 400,
-                  color: "#124446",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  flexShrink: 1,
-                  flexGrow: 1,
-                }}
-              />
-
-              {/* Location pin with silent geolocation detection */}
-              <button
-                type="button"
-                onClick={handleDetectCity}
-                disabled={detectingLocation}
-                title={detectingLocation ? "Detecting nearest city..." : "Detect nearest city"}
-                aria-label="Detect nearest city"
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 4,
-                  cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  color: "#557173",
-                  outline: "none",
-                  opacity: detectingLocation ? 0.4 : 1,
-                  transition: "opacity 0.2s ease",
+                  padding: "0 8px 0 10px",
+                  gap: 6,
+                  boxSizing: "border-box",
                   flexShrink: 0,
                 }}
               >
                 <LocationPin />
-              </button>
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  aria-label="Select City"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    background: "transparent",
+                    border: "none",
+                    color: "#124446",
+                    fontFamily: HK,
+                    fontSize: 16,
+                    fontWeight: 400,
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                    cursor: "pointer",
+                    outline: "none",
+                    paddingRight: 16,
+                  }}
+                >
+                  <option value="All">All Cities</option>
+                  {cities.length > 0 ? (
+                    cities.map((c) => (
+                      <option key={c.id || c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Gurugram">Gurugram</option>
+                      <option value="Bengaluru">Bengaluru</option>
+                      <option value="Hyderabad">Hyderabad</option>
+                      <option value="Mumbai">Mumbai</option>
+                      <option value="Pune">Pune</option>
+                      <option value="Noida">Noida</option>
+                    </>
+                  )}
+                </select>
+                <div style={{ position: "absolute", right: 8, pointerEvents: "none" }}>
+                  <Caret />
+                </div>
+              </div>
+
+              {/* Search input with search icon & tune icon */}
+              <div
+                className="hero-search-input"
+                style={{
+                  position: "relative",
+                  height: 43,
+                  background: "#F8FFFB",
+                  border: "1px solid #124446",
+                  borderRadius: 5,
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 12px",
+                  gap: 8,
+                  boxSizing: "border-box",
+                  flexGrow: 1,
+                  flexShrink: 1,
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/figma-assets/Header+ banner/Search.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  style={{ display: "block", flexShrink: 0 }}
+                />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search by Project, Locality or Developer..."
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    background: "transparent",
+                    border: "none",
+                    fontFamily: HK,
+                    fontSize: 16,
+                    fontWeight: 400,
+                    color: "#124446",
+                    outline: "none",
+                    padding: 0,
+                  }}
+                />
+                {/* Tune / Filter icon or detect location button */}
+                <button
+                  type="button"
+                  onClick={handleDetectCity}
+                  disabled={detectingLocation}
+                  title={detectingLocation ? "Detecting nearest city..." : "Detect nearest city"}
+                  aria-label="Filter or detect location"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 2,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    outline: "none",
+                    opacity: detectingLocation ? 0.4 : 1,
+                    transition: "opacity 0.2s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/figma-assets/Header+ banner/tune_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
+                    alt=""
+                    width={20}
+                    height={20}
+                  />
+                </button>
+              </div>
 
               {/* Search button */}
               <button
                 type="submit"
                 className="hero-search-btn"
                 style={{
-                  width: 110,
-                  height: 40,
+                  height: 43,
                   background: "#124446",
                   color: "#F8FFFB",
                   border: "none",
                   borderRadius: 5,
-                  padding: "10px 24px 10px 28px",
-                  boxShadow: "2px 4px 2px rgba(0,0,0,.25)",
+                  padding: "0 28px",
                   fontFamily: HK,
                   fontSize: 16,
                   fontWeight: 400,
@@ -427,11 +459,13 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
               </button>
             </div>
 
-            {/* ── Filter bar ── */}
+            {/* ── Filter bar (Frame 404 / Frame 19) ── */}
             <div
               className="hero-filter-bar"
               style={{
-                height: 56,
+                width: 700,
+                maxWidth: "100%",
+                height: 55,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -440,7 +474,6 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 background: "#F8FFFB",
                 border: "1px solid #124446",
                 borderRadius: 6,
-                width: "100%",
                 boxSizing: "border-box",
               }}
             >
