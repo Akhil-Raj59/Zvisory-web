@@ -19,21 +19,8 @@ function Caret() {
     <img
       src="/figma-assets/Header+ banner/arrow_drop_down_.svg"
       alt=""
-      width={18}
-      height={18}
-      style={{ display: "block", flexShrink: 0 }}
-    />
-  );
-}
-
-/** Location pin SVG */
-function LocationPin() {
-  return (
-    <img
-      src="/figma-assets/Header+ banner/my_location_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
-      alt=""
-      width={20}
-      height={20}
+      width={16}
+      height={16}
       style={{ display: "block", flexShrink: 0 }}
     />
   );
@@ -120,18 +107,20 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
     border: 0,
     color: "#124446",
     fontFamily: HK,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 400,
     cursor: "pointer",
     outline: "none",
-    padding: 0,
+    padding: "0 14px 0 0",
   };
 
   const filterWrapStyle: React.CSSProperties = {
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
-    gap: 8,
+    gap: 4,
     cursor: "pointer",
+    position: "relative",
+    flexShrink: 0,
   };
 
   return (
@@ -228,8 +217,8 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
             width: 100% !important;
           }
           .hero-title {
-            font-size: clamp(24px, 6.5vw, 36px) !important;
-            line-height: 1.25 !important;
+            font-size: 28px !important;
+            line-height: 35px !important;
           }
         }
       `}</style>
@@ -275,7 +264,7 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
               textAlign: "center",
             }}
           >
-            Find Your Dream Home, Not Just A Property.
+            Find Your Dream Home,<br className="hidden sm:inline" /> Not Just A Property.
           </h1>
         </div>
 
@@ -299,25 +288,23 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 gap: 16,
               }}
             >
-              {/* City select with location icon & caret */}
+              {/* City select dropdown (Frame 9 — simple, clean, no decorative location pin) */}
               <div
                 className="hero-city-select"
                 style={{
                   position: "relative",
-                  width: 145,
+                  width: 135,
                   height: 43,
                   background: "#F8FFFB",
                   border: "1px solid #124446",
                   borderRadius: 5,
                   display: "flex",
                   alignItems: "center",
-                  padding: "0 8px 0 10px",
-                  gap: 6,
+                  padding: "0 10px",
                   boxSizing: "border-box",
                   flexShrink: 0,
                 }}
               >
-                <LocationPin />
                 <select
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -335,7 +322,7 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                     WebkitAppearance: "none",
                     cursor: "pointer",
                     outline: "none",
-                    paddingRight: 16,
+                    paddingRight: 20,
                   }}
                 >
                   <option value="All">All Cities</option>
@@ -361,7 +348,7 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 </div>
               </div>
 
-              {/* Search input with search icon & tune icon */}
+              {/* Search input with search icon on left & location-pin on right */}
               <div
                 className="hero-search-input"
                 style={{
@@ -373,7 +360,7 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                   display: "flex",
                   alignItems: "center",
                   padding: "0 12px",
-                  gap: 8,
+                  gap: 10,
                   boxSizing: "border-box",
                   flexGrow: 1,
                   flexShrink: 1,
@@ -383,8 +370,8 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 <img
                   src="/figma-assets/Header+ banner/Search.svg"
                   alt=""
-                  width={20}
-                  height={20}
+                  width={18}
+                  height={18}
                   style={{ display: "block", flexShrink: 0 }}
                 />
                 <input
@@ -398,20 +385,20 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                     background: "transparent",
                     border: "none",
                     fontFamily: HK,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 400,
                     color: "#124446",
                     outline: "none",
                     padding: 0,
                   }}
                 />
-                {/* Tune / Filter icon or detect location button */}
+                {/* Location pin icon (detect nearest city per Figma) */}
                 <button
                   type="button"
                   onClick={handleDetectCity}
                   disabled={detectingLocation}
                   title={detectingLocation ? "Detecting nearest city..." : "Detect nearest city"}
-                  aria-label="Filter or detect location"
+                  aria-label="Detect nearest city"
                   style={{
                     background: "none",
                     border: "none",
@@ -424,15 +411,23 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                     opacity: detectingLocation ? 0.4 : 1,
                     transition: "opacity 0.2s ease",
                     flexShrink: 0,
+                    width: 20,
+                    height: 20,
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/figma-assets/Header+ banner/tune_24dp_124446_FILL0_wght400_GRAD0_opsz24.svg"
-                    alt=""
-                    width={20}
-                    height={20}
-                  />
+                  <svg
+                    width={18}
+                    height={22}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#124446"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
                 </button>
               </div>
 
@@ -453,6 +448,10 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                   cursor: "pointer",
                   flexShrink: 0,
                   whiteSpace: "nowrap",
+                  boxShadow: "2px 4px 4px rgba(0, 0, 0, 0.25)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 Search
@@ -468,9 +467,8 @@ export function HomeHero({ cities = [], developers = [] }: HomeHeroProps) {
                 height: 55,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: 40,
-                padding: "10px 16px",
+                justifyContent: "space-between",
+                padding: "10px 24px",
                 background: "#F8FFFB",
                 border: "1px solid #124446",
                 borderRadius: 6,

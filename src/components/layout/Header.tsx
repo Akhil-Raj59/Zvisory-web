@@ -106,8 +106,9 @@ export function Header({
                   href={href}
                   style={{
                     ...hankenFont,
-                    fontWeight: 600,
-                    fontSize: 20,
+                    fontWeight: 400,
+                    fontSize: 16,
+                    lineHeight: "21px",
                     color: "#F8FFFB",
                     textDecoration: "none",
                   }}
@@ -122,7 +123,7 @@ export function Header({
             <div
               style={{
                 display: "flex",
-                gap: 32,
+                gap: 24,
                 alignItems: "center",
               }}
             >
@@ -140,19 +141,10 @@ export function Header({
                   color: "#F8FFFB",
                   flexShrink: 0,
                 }}
-                className="hover:text-[#D3A479] transition-colors"
+                className="hover:opacity-80 transition-opacity"
               >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#F8FFFB">
+                  <path d="M5,21V5Q5,4.17 5.59,3.59T7,3H17q0.82,0 1.41,0.59T19,5V21l-7-3L5,21Zm2-3.05l5-2.15l5,2.15V5H7V17.95ZM7,5H17H12H7Z" />
                 </svg>
               </Link>
 
@@ -170,10 +162,14 @@ export function Header({
                   background: "transparent",
                   fontWeight: 400,
                   fontSize: 16,
+                  lineHeight: "21px",
                   color: "#F8FFFB",
                   cursor: "pointer",
                   boxSizing: "border-box",
                   whiteSpace: "nowrap",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
                 className="hover:bg-white/10 transition-colors"
               >
@@ -292,13 +288,48 @@ export function Header({
                 <div className="flex items-center gap-2 ml-1">
                   <Link
                     href="/login"
-                    className="px-3.5 py-1.5 rounded-lg border border-[#D3A479] text-[#D3A479] hover:bg-[#D3A479] hover:text-[#124446] text-xs font-semibold transition-colors"
+                    style={{
+                      ...hankenFont,
+                      height: 34,
+                      padding: "0 14px",
+                      borderRadius: 6,
+                      border: "1px solid #D3A479",
+                      color: "#D3A479",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      lineHeight: "32px",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxSizing: "border-box",
+                      transition: "all 0.15s ease",
+                    }}
+                    className="hover:bg-[#D3A479] hover:text-[#124446]"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/register"
-                    className="px-3.5 py-1.5 rounded-lg bg-[#D3A479] text-[#124446] hover:bg-[#c29367] text-xs font-bold transition-colors shadow-xs"
+                    style={{
+                      ...hankenFont,
+                      height: 34,
+                      padding: "0 14px",
+                      borderRadius: 6,
+                      background: "#D3A479",
+                      border: "1px solid #D3A479",
+                      color: "#124446",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      lineHeight: "32px",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxSizing: "border-box",
+                      transition: "all 0.15s ease",
+                    }}
+                    className="hover:bg-[#c29367]"
                   >
                     Register
                   </Link>
